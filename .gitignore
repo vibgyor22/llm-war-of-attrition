@@ -1,0 +1,38 @@
+# ── Secrets (NEVER commit) ──────────────────────────────────────────
+.env
+*.env.local
+
+# ── Python ──────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+.pytest_cache/
+
+# ── Virtual environments ────────────────────────────────────────────
+.venv/
+venv/
+env/
+
+# ── IDE / OS ────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+.ipynb_checkpoints/
+
+# ── Large / regenerable artefacts ───────────────────────────────────
+cache/
+data/raw/
+*.tmp.*
+dashboard/*.tmp.*
+
+# NOTE: outputs/ and data/processed/ ARE committed on purpose. The
+# pure-visualisation dashboard reads these parquet/JSONL files directly,
+# so the deployed app is self-contained and needs no API keys at runtime.

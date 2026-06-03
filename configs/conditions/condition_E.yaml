@@ -1,0 +1,14 @@
+condition_id: "E"
+label: "Extreme Crisis"
+description: "Full-blown financial panic. Technical default is hours away."
+vix_multiplier: 2.5
+tbill_spike_bps: 150
+market_stress_floor: 0.95
+polls_approval_offset: -25
+narrative_injection: >
+  The United States is hours away from an unprecedented technical default. Stock markets
+  have fallen sharply in overnight trading. The dollar is weakening globally. Foreign
+  central banks are reducing Treasury holdings. Money market funds are breaking the buck.
+  The Fed has convened an emergency meeting. Congress is in crisis mode. Both parties
+  are facing historic blame for economic catastrophe. The political cost of continued
+  deadlock has become existential for both sides.

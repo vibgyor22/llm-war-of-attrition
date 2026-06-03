@@ -1,0 +1,27 @@
+episode_id: "2023"
+label: "2023 US Debt Ceiling Crisis"
+contamination_risk: true
+mask_historical_outcome: false
+xdate: "2023-06-05"
+t0_date: "2023-05-06"
+max_periods: 30
+deficit_projection_bn: 1400
+debt_gdp_ratio_at_t0: 120.0
+election_days_out: 549
+historical_resolution: "Fiscal Responsibility Act signed June 3, 2023. Suspended debt ceiling until January 1, 2025 in exchange for caps on non-defense discretionary spending, clawback of unspent COVID funds, and new work requirements for SNAP."
+agents:
+  hawk:
+    ideology_score: 0.88
+    reputation_premium: 0.35
+    electoral_vulnerability: 0.35
+  dove:
+    ideology_score: 0.12
+    reputation_premium: 0.25
+    electoral_vulnerability: 0.5
+polling:
+  biden_approval_pct: 41
+  congress_approval_pct: 18
+  public_favors_deal_pct: 74
+  public_favors_cuts_only_pct: 18
+treasury_warning_issued: "2023-01-19"
+janet_yellen_xdate_estimate: "2023-06-01"

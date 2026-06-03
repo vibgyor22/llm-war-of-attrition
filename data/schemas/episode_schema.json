@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "episode_state_schema",
+  "title": "EpisodeState",
+  "description": "One row of the episode parquet — a single period observation within a debt-ceiling episode.",
+  "type": "object",
+  "required": [
+    "episode_id",
+    "period",
+    "date",
+    "days_to_xdate",
+    "vix",
+    "tbill_4wk",
+    "market_stress_index",
+    "polling_approval_pct",
+    "debt_gdp_ratio",
+    "deficit_projection_bn",
+    "election_days_out"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "episode_id": {
+      "type": "string",
+      "description": "Identifier for the debt-ceiling episode (e.g. '2011', '2013', '2023', '2025_counterfactual')."
+    },
+    "period": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 30,
+      "description": "Simulation period index within the episode, starting at 0."
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Calendar date corresponding to this period (ISO 8601, YYYY-MM-DD)."
+    },
+    "days_to_xdate": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 30,
+      "description": "Number of days remaining until the Treasury X-date at this period."
+    },
+    "vix": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "CBOE Volatility Index level (positive real number)."
+    },
+    "tbill_4wk": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "4-week Treasury bill yield in percent (positive real number)."
+    },
+    "market_stress_index": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Composite market stress index, normalized to [0, 1]."
+    },
+    "polling_approval_pct": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Presidential or congressional approval rating in percent."
+    },
+    "debt_gdp_ratio": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "Federal debt as a percentage of GDP (positive real number)."
+    },
+    "deficit_projection_bn": {
+      "type": "number",
+      "description": "Projected annual federal deficit in billions of USD."
+    },
+    "election_days_out": {
+      "type": "integer",
+      "description": "Days until the next major federal election from t0."
+    },
+    "condition_id": {
+      "type": "string",
+      "enum": ["A", "B", "C", "D", "E"],
+      "description": "Experimental condition applied to this episode run (optional; added when a condition is overlaid)."
+    }
+  }
+}

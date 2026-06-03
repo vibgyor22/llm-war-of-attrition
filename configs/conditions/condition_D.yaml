@@ -1,0 +1,13 @@
+condition_id: "D"
+label: "Near-Crisis Conditions"
+description: "Active market panic. X-date imminent. Treasury has begun extraordinary measures."
+vix_multiplier: 1.8
+tbill_spike_bps: 80
+market_stress_floor: 0.82
+polls_approval_offset: -15
+narrative_injection: >
+  The Treasury has exhausted extraordinary measures and is down to its last few days of
+  cash. VIX has surged. Short-term Treasury bill yields have spiked dramatically as
+  investors demand a premium for default risk. Major financial institutions are war-gaming
+  contingency plans. The Federal Reserve has indicated it cannot fully offset a default.
+  Both sides' constituents are calling for immediate resolution.

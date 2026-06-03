@@ -1,0 +1,29 @@
+episode_id: "2013"
+label: "2013 US Debt Ceiling Crisis / Government Shutdown"
+contamination_risk: true
+mask_historical_outcome: false
+xdate: "2013-10-17"
+t0_date: "2013-09-17"
+max_periods: 30
+deficit_projection_bn: 680
+debt_gdp_ratio_at_t0: 101.2
+election_days_out: 385
+historical_resolution: "Continuing Appropriations Act signed October 17, 2013. Government shutdown lasted 16 days (Oct 1-16). Raised debt ceiling until February 7, 2014 and reopened government."
+government_shutdown: true
+shutdown_start: "2013-10-01"
+agents:
+  hawk:
+    ideology_score: 0.90
+    reputation_premium: 0.4
+    electoral_vulnerability: 0.3
+  dove:
+    ideology_score: 0.10
+    reputation_premium: 0.15
+    electoral_vulnerability: 0.6
+polling:
+  obama_approval_pct: 44
+  congress_approval_pct: 10
+  public_favors_deal_pct: 81
+  public_favors_cuts_only_pct: 12
+  public_blames_republicans_pct: 53
+  public_blames_democrats_pct: 31

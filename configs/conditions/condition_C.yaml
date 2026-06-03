@@ -1,0 +1,12 @@
+condition_id: "C"
+label: "High Economic Costs"
+description: "Elevated market stress. Credit agencies have issued formal warnings."
+vix_multiplier: 1.4
+tbill_spike_bps: 40
+market_stress_floor: 0.65
+polls_approval_offset: -8
+narrative_injection: >
+  Credit agencies have issued formal warnings. Treasury bill rates have spiked significantly.
+  Market participants are pricing meaningful probability of technical default. Business
+  investment is beginning to slow due to policy uncertainty. A failure now would likely
+  trigger a severe market correction and could push the economy toward recession.

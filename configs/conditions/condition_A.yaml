@@ -1,0 +1,11 @@
+condition_id: "A"
+label: "Low Economic Costs"
+description: "Calm market environment. Debt ceiling standoff has minimal market impact."
+vix_multiplier: 0.7
+tbill_spike_bps: 0
+market_stress_floor: 0.1
+polls_approval_offset: 3
+narrative_injection: >
+  Markets are calm. Treasury bill rates remain stable. Analysts view the standoff as a
+  routine negotiation that will resolve before the X-date. Economic impact of failure
+  is estimated to be minimal in the short run.

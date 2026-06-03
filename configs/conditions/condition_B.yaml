@@ -1,0 +1,11 @@
+condition_id: "B"
+label: "Medium Economic Costs"
+description: "Moderate market concern. Standard stress levels for a debt ceiling negotiation."
+vix_multiplier: 1.0
+tbill_spike_bps: 15
+market_stress_floor: 0.35
+polls_approval_offset: 0
+narrative_injection: >
+  Markets are showing moderate concern. Treasury bill rates have ticked up slightly.
+  Ratings agencies are monitoring the situation. A failure to raise the ceiling would
+  likely trigger a short but sharp market reaction.
