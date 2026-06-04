@@ -36,10 +36,11 @@ if _CSS.exists():
     st.markdown(f"<style>{_CSS.read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
 
 # ── Colour encoding (consistent across every chart) ─────────────────────────
-HAWK, DOVE, GOLD, GOLD2, GREEN, MUTE = "#c94055", "#1a9cc8", "#b89840", "#d4b454", "#22b874", "#7080a0"
-_EP   = {"2011": HAWK, "2013": GOLD, "2023": DOVE, "2025_counterfactual": "#7755bb"}
-# cool -> warm ramp for conditions A..E (per spec)
-_CD   = {"A": "#3a86c8", "B": "#33b0a6", "C": "#c8b040", "D": "#d18438", "E": "#c84050"}
+HAWK, DOVE, GOLD, GOLD2, GREEN, MUTE = "#c41e3a", "#0077b6", "#8b6914", "#b8860b", "#15803d", "#5c5c5c"
+_EP   = {"2011": HAWK, "2013": GOLD, "2023": DOVE, "2025_counterfactual": "#6d28d9"}
+_CD   = {"A": "#1d6fb8", "B": "#0d7a5c", "C": "#b8860b", "D": "#b45309", "E": "#c41e3a"}
+_CHART_INK = "#1a1a1a"
+_CHART_MUTED = "#5c5c5c"
 _EP_NAME = {
     "2011": "2011 — Budget Control Act",
     "2013": "2013 — Government Shutdown",
@@ -54,8 +55,8 @@ _FLOW_MERMAID = r"""
 <style>
   /* Dark wrapper · pastel academic cards inside. */
   html,body{margin:0;padding:0;background:transparent;
-            font-family:'Courier New','Lucida Console',monospace;color:#e3e7f7;}
-  .wrap{background:transparent;border:1px solid rgba(255,255,255,0.06);
+            font-family:'Courier New','Lucida Console',monospace;color:#1a1a1a;}
+  .wrap{background:transparent;border:1px solid rgba(18,18,18,0.12);
         border-radius:8px;padding:20px 24px 18px;position:relative;}
 
   .phases{display:grid;grid-template-columns:1fr 40px 1.4fr 40px 1fr;
@@ -67,8 +68,8 @@ _FLOW_MERMAID = r"""
   .phase-h{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
   .pnum{display:inline-flex;align-items:center;justify-content:center;
         width:24px;height:24px;border-radius:50%;
-        background:#e3e7f7;color:#0a0a18;font-weight:900;font-size:0.82rem;}
-  .plbl{font-size:0.66rem;letter-spacing:0.22em;color:#e3e7f7;
+        background:#121212;color:#f7f3e8;font-weight:900;font-size:0.82rem;}
+  .plbl{font-size:0.66rem;letter-spacing:0.22em;color:#121212;
         text-transform:uppercase;font-weight:bold;}
 
   /* arrow gutter between phases */
@@ -155,8 +156,8 @@ _FLOW_MERMAID = r"""
     <div class="arrow">
       <svg width="38" height="20" viewBox="0 0 38 20">
         <defs><marker id="ah1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-          <path d="M0,0 L8,4 L0,8 z" fill="#e3e7f7"/></marker></defs>
-        <line x1="0" y1="10" x2="30" y2="10" stroke="#e3e7f7" stroke-width="1.8" marker-end="url(#ah1)"/>
+          <path d="M0,0 L8,4 L0,8 z" fill="#121212"/></marker></defs>
+        <line x1="0" y1="10" x2="30" y2="10" stroke="#121212" stroke-width="1.8" marker-end="url(#ah1)"/>
       </svg>
     </div>
 
@@ -336,12 +337,12 @@ n_tx   = len(tx_all)
 
 # ── Shared plotly theme ─────────────────────────────────────────────────────
 _BASE = dict(
-    paper_bgcolor="rgba(4,4,16,0)", plot_bgcolor="rgba(7,7,20,0.75)",
-    font=dict(color="#b0bcd4", family="Courier New, monospace", size=11),
-    legend=dict(bgcolor="rgba(0,0,0,0.38)", font=dict(size=10), borderwidth=0),
-    hoverlabel=dict(bgcolor="#080820", font=dict(family="Courier New, monospace", size=11)),
-    xaxis=dict(gridcolor="rgba(255,255,255,0.04)", zeroline=False, tickfont=dict(size=10)),
-    yaxis=dict(gridcolor="rgba(255,255,255,0.04)", zeroline=False, tickfont=dict(size=10)),
+    paper_bgcolor="rgba(247,243,232,0)", plot_bgcolor="rgba(255,253,248,0.95)",
+    font=dict(color=_CHART_MUTED, family="Courier New, monospace", size=11),
+    legend=dict(bgcolor="rgba(255,255,255,0.92)", font=dict(size=10, color=_CHART_INK), borderwidth=0),
+    hoverlabel=dict(bgcolor="#fffdf8", font=dict(family="Courier New, monospace", size=11, color=_CHART_INK)),
+    xaxis=dict(gridcolor="rgba(18,18,18,0.08)", zeroline=False, tickfont=dict(size=10, color=_CHART_MUTED)),
+    yaxis=dict(gridcolor="rgba(18,18,18,0.08)", zeroline=False, tickfont=dict(size=10, color=_CHART_MUTED)),
 )
 
 def _lay(fig: go.Figure, h: int = 300, margin: dict | None = None, **kw) -> go.Figure:
@@ -368,14 +369,14 @@ def stars(p):
 
 # ── Sidebar (transparency: files, rows, missing flags) ──────────────────────
 with st.sidebar:
-    st.markdown("<span style='font-family:monospace;color:#b89840;letter-spacing:0.1em'>"
+    st.markdown("<span style='font-family:monospace;color:#8b6914;letter-spacing:0.1em'>"
                 "DATA PROVENANCE</span>", unsafe_allow_html=True)
     st.divider()
     def _row(ok, lbl, detail):
         c = "pg" if ok else "pr"
         return (f"<div style='margin-bottom:0.35rem'><span class='ping {c}'></span>"
-                f"<span style='font-family:monospace;font-size:0.7rem;color:#b8c2dc'>{lbl}</span><br>"
-                f"<span style='font-family:monospace;font-size:0.62rem;color:#7080a0;margin-left:12px'>"
+                f"<span style='font-family:monospace;font-size:0.7rem;color:#1a1a1a'>{lbl}</span><br>"
+                f"<span style='font-family:monospace;font-size:0.62rem;color:#5c5c5c;margin-left:12px'>"
                 f"{detail}</span></div>")
     sim_p = _RESULTS / "simulation_results.parquet"
     prd_p = _RESULTS / "period_level_data.parquet"
@@ -392,10 +393,10 @@ with st.sidebar:
     st.divider()
     if HAS:
         st.markdown(
-            "<span style='font-family:monospace;font-size:0.64rem;color:#7080a0;line-height:1.6'>"
-            f"<b style='color:#b8c2dc'>Unit of analysis</b><br>"
+            "<span style='font-family:monospace;font-size:0.64rem;color:#5c5c5c;line-height:1.6'>"
+            f"<b style='color:#121212'>Unit of analysis</b><br>"
             f"{len(sim)} runs = 40 scenarios × {{historical, masked}}.<br>"
-            f"Pairing keyed off the <code style='color:#d4b454'>_masked</code> id suffix "
+            f"Pairing keyed off the <code style='color:#8b6914'>_masked</code> id suffix "
             f"({(~sim['masked']).sum()} historical / {sim['masked'].sum()} masked).<br>"
             f"Primary stats use historical runs; masked runs reported as replication."
             "</span>", unsafe_allow_html=True)
@@ -552,9 +553,9 @@ with t1:
                 "regime (H3)</div>", unsafe_allow_html=True)
     fig = go.Figure(go.Bar(x=list(cond_med.index), y=cond_med.values,
                     marker_color=[_CD[c] for c in cond_med.index],
-                    marker_line_color="rgba(255,255,255,0.12)", marker_line_width=0.6, width=0.55,
+                    marker_line_color="rgba(18,18,18,0.15)", marker_line_width=0.6, width=0.55,
                     text=[f"{v:.0f}" for v in cond_med.values], textposition="outside",
-                    textfont=dict(size=14, color="#e3e7f7"),
+                    textfont=dict(size=14, color=_CHART_INK),
                     hovertemplate="Condition %{x}<br>median period %{y:.1f}<extra></extra>"))
     _lay(fig, h=300, margin=dict(t=14, b=38, l=48, r=14),
          xaxis=dict(title="Condition (A calm → E near-default)", gridcolor="rgba(0,0,0,0)"),
@@ -570,7 +571,7 @@ with t1:
         m = sim.condition_id == c
         fig.add_trace(go.Scatter(x=cr[m], y=sim_dur[m], mode="markers", name=f"Cond {c}",
                       marker=dict(color=_CD[c], size=8, opacity=0.72,
-                                  line=dict(color="rgba(255,255,255,0.15)", width=0.5)),
+                                  line=dict(color="rgba(18,18,18,0.12)", width=0.5)),
                       hovertemplate="ratio %{x:.2f}<br>period %{y}<extra>Cond " + c + "</extra>"))
     op = _ols("pooled")
     if op and "model" in op:
@@ -588,10 +589,10 @@ with t1:
                 unsafe_allow_html=True)
     fig = go.Figure(go.Bar(
         y=["Republican concedes", "Democrat concedes", "No deal at cap"], x=[hawk_c, dove_c, no_deal],
-        orientation="h", marker_color=[HAWK, DOVE, "#444a66"],
-        marker_line_color="rgba(255,255,255,0.12)", marker_line_width=0.6, width=0.6,
+        orientation="h", marker_color=[HAWK, DOVE, "#9ca3af"],
+        marker_line_color="rgba(18,18,18,0.12)", marker_line_width=0.6, width=0.6,
         text=[hawk_c, dove_c, no_deal], textposition="outside",
-        textfont=dict(size=14, color="#e3e7f7"), hovertemplate="%{y}: %{x} runs<extra></extra>"))
+        textfont=dict(size=14, color=_CHART_INK), hovertemplate="%{y}: %{x} runs<extra></extra>"))
     _lay(fig, h=210, margin=dict(t=10, b=36, l=16, r=22),
          xaxis=dict(title="Number of runs", range=[0, max(hawk_c, dove_c) * 1.25]),
          yaxis=dict(autorange="reversed"))
@@ -628,6 +629,36 @@ with t1:
             "first</span>. This dashboard checks whether LLM agents follow that rule when given only "
             "each party's fiscal priorities."
             "</div>", unsafe_allow_html=True)
+        st.markdown(
+            "<div class='gtnote' style='margin-bottom:0.75rem'>"
+            "<b>Why Alesina &amp; Drazen (1991) matter here.</b> They argue that fiscal stabilizations "
+            "are delayed not because policymakers are irrational, but because groups disagree over "
+            "<i>who pays</i> for adjustment — and each group rationally waits for another to concede. "
+            "Agreement arrives when one side's cost of further delay exceeds the benefit of holding out. "
+            "The U.S. debt ceiling is the same structure: everyone wants to avoid default, but fights "
+            "over spending cuts versus revenue."
+            "</div>", unsafe_allow_html=True)
+        st.markdown("<div class='slbl'>Debt ceiling as a war of attrition</div>", unsafe_allow_html=True)
+        st.markdown(
+            "<ul class='bigbullets'>"
+            "<li><span class='lead-in'>Stalemate.</span> Both parties agree a deal is needed; they "
+            "disagree on <b>who absorbs the political cost</b> (cuts, taxes, program rules).</li>"
+            "<li><span class='lead-in'>Cost of waiting.</span> Each period, <b>VIX</b>, <b>T-bill yields</b>, "
+            "and the <b>X-date countdown</b> raise the price of deadlock — like rising inflation or "
+            "bond stress in AD's prestabilization phase.</li>"
+            "<li class='h'><span class='lead-in'>Concession.</span> One side accepts terms first; "
+            "that moment reveals which side was under more pressure — even though delay cost is "
+            "<b>private</b> and only proxied here by the agent's 0–10 self-rating.</li>"
+            "</ul>", unsafe_allow_html=True)
+        st.markdown(
+            "<div class='explain' style='grid-template-columns:1fr;margin-top:0.65rem'>"
+            "<div class='explain-item' style='border-left-color:var(--gold)'>"
+            "<div class='ei-h'>What this experiment adds</div>"
+            "<div class='ei-b'>Real debt-ceiling timing is scarce and noisy. Here, the same game is "
+            "replayed <b>80 times</b> with controlled stress (A→E) and masked/fictional episodes so we "
+            "can test <b>whether</b> higher reported delay cost → earlier concession and "
+            "<b>whether</b> crisis stress shortens the standoff — without scripting the outcome.</div>"
+            "</div></div>", unsafe_allow_html=True)
     with ecol:
         st.markdown("<div class='slbl'>The formal core</div>", unsafe_allow_html=True)
         st.latex(r"P(i\ \text{concedes first}) = \frac{\mu_i}{\mu_i + \mu_j}")
@@ -773,7 +804,7 @@ with t2:
             hz = pd.DataFrame(hz)
             fig = go.Figure(go.Bar(x=hz["c"], y=hz["rate"], marker_color=[_CD.get(c, "#aaa") for c in hz["c"]],
                             width=0.55, text=[f"{r:.4f}" for r in hz["rate"]], textposition="outside",
-                            textfont=dict(size=9, color="#b0bcd4")))
+                            textfont=dict(size=9, color=_CHART_MUTED)))
             _lay(fig, h=240, margin=dict(t=18, b=30, l=44, r=12),
                  xaxis=dict(title="Condition"), yaxis=dict(title="Hazard rate"))
             st.plotly_chart(fig, use_container_width=True)
@@ -834,7 +865,7 @@ with t3:
                                 marker_color=_EP.get(ep, "#aaa"), opacity=0.8, histnorm="probability"), row=1, col=i)
             _lay(fig_3, h=280, barmode="overlay", margin=dict(t=46, b=26, l=42, r=14))
             for ann in fig_3.layout.annotations:
-                ann.font.update(color="#b0bcd4", size=10)
+                ann.font.update(color=_CHART_MUTED, size=10)
             st.plotly_chart(fig_3, use_container_width=True)
 
             if not period.empty and mcol in period.columns:
@@ -880,7 +911,7 @@ with t4:
                     unsafe_allow_html=True)
     else:
         st.markdown("<div class='slbl'>Negotiation transcripts</div>", unsafe_allow_html=True)
-        st.markdown("<span style='font-family:monospace;font-size:0.72rem;color:#7080a0'>"
+        st.markdown("<span style='font-family:monospace;font-size:0.72rem;color:#5c5c5c'>"
                     "Each file is one Republican vs Democrat negotiation. Files ending <code>_masked</code> "
                     "are contamination-control runs with the historical outcome hidden.</span>",
                     unsafe_allow_html=True)
@@ -926,7 +957,7 @@ with t4:
             for p in matched[(pg - 1) * PER: pg * PER]:
                 ctx = (f"Period {p['period']} · {p.get('date','')} · days→X {p.get('days_to_xdate','')} · "
                        f"VIX {p.get('vix',0):.1f} · stress {p.get('market_stress_index',0):.2f}")
-                st.markdown(f"<div style='font-family:monospace;font-size:0.66rem;color:#7080a0;"
+                st.markdown(f"<div style='font-family:monospace;font-size:0.66rem;color:#5c5c5c;"
                             f"margin:0.6rem 0 0.3rem'>{ctx}</div>", unsafe_allow_html=True)
                 cc1, cc2 = st.columns(2)
                 for col, key, cls, name in [(cc1, "hawk_decision", "h", "REPUBLICAN"), (cc2, "dove_decision", "d", "DEMOCRAT")]:
@@ -1038,7 +1069,7 @@ with t6:
     ml, mr = st.columns([5, 4], gap="large")
     with ml:
         st.markdown("<div class='slbl'>Theoretical model — Alesina &amp; Drazen (1991)</div>", unsafe_allow_html=True)
-        st.markdown("<span style='font-family:monospace;font-size:0.78rem;color:#b0bcd4;line-height:1.7'>"
+        st.markdown("<span style='font-family:monospace;font-size:0.78rem;color:#2a2a2a;line-height:1.7'>"
                     "Two factions each draw a private delay-cost rate. The faction with the higher rate "
                     "concedes first; the hazard of resolution rises with the deadweight loss of delay.</span>",
                     unsafe_allow_html=True)
@@ -1046,7 +1077,7 @@ with t6:
         st.latex(r"P(i \text{ concedes first}) = \frac{\mu_i}{\mu_i + \mu_j}, \quad \mathbb{E}[T^*] = \frac{1}{\mu_i + \mu_j}")
         st.latex(r"h(t) = \mu_i + \mu_j, \qquad \mu_{\text{eff}}(s) = \mu_{\text{base}}(1 + \gamma s), \; s \in [0,1]")
         st.markdown("<div class='slbl' style='margin-top:1rem'>Mapping to the simulation</div>", unsafe_allow_html=True)
-        st.markdown("<span style='font-family:monospace;font-size:0.76rem;color:#b0bcd4;line-height:1.7'>"
+        st.markdown("<span style='font-family:monospace;font-size:0.76rem;color:#2a2a2a;line-height:1.7'>"
                     "The per-period <code>delay_cost_implied</code> score (0–10, self-reported by each agent) "
                     "proxies the latent rate λ; the Republican/Democrat ratio of run-means is the H1 regressor. The "
                     "period of the first CONCEDE is the realized stopping time T*. Condition A→E scales s. "
@@ -1069,7 +1100,7 @@ with t6:
             st.markdown(f"<div class='finding-sub'>{desc}</div></div>", unsafe_allow_html=True)
 
         st.markdown("<div class='slbl' style='margin-top:1rem'>Identification</div>", unsafe_allow_html=True)
-        st.markdown("<span style='font-family:monospace;font-size:0.76rem;color:#b0bcd4;line-height:1.7'>"
+        st.markdown("<span style='font-family:monospace;font-size:0.76rem;color:#2a2a2a;line-height:1.7'>"
                     "<b>Threat:</b> historical episodes are in the training corpus. "
                     "<b>Mitigations:</b> (i) masked replays with outcome hidden and identifying detail removed; "
                     "(ii) a fictional 2025 counterfactual as an out-of-sample test; (iii) the primary H1 "
@@ -1077,7 +1108,7 @@ with t6:
                     "avoid double-counting paired observations.</span>", unsafe_allow_html=True)
 
         st.markdown("<div class='slbl' style='margin-top:1rem'>Literature gap</div>", unsafe_allow_html=True)
-        st.markdown("<span style='font-family:monospace;font-size:0.76rem;color:#b0bcd4;line-height:1.7'>"
+        st.markdown("<span style='font-family:monospace;font-size:0.76rem;color:#2a2a2a;line-height:1.7'>"
                     "Baker et al. (2024) and related work document that LLM agents exhibit coherent "
                     "strategic behaviour in matrix and bargaining games. The contribution here is to test "
                     "a specific, falsifiable political-economy prediction — the Alesina-Drazen "
@@ -1085,7 +1116,7 @@ with t6:
                     "an explicit contamination control.</span>", unsafe_allow_html=True)
 
         st.markdown("<div class='slbl' style='margin-top:1rem'>Limitations</div>", unsafe_allow_html=True)
-        st.markdown("<span style='font-family:monospace;font-size:0.76rem;color:#7080a0;line-height:1.7'>"
+        st.markdown("<span style='font-family:monospace;font-size:0.76rem;color:#5c5c5c;line-height:1.7'>"
                     "• Two replicates per cell (n=40 historical runs); CIs are wide (β CI spans "
                     f"[{o_h['ci_lo']:.0f}, {o_h['ci_hi']:.0f}] if available).<br>"
                     "• The delay-cost regressor is self-reported by the same agent whose timing is the "
