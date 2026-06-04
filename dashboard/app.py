@@ -27,7 +27,7 @@ _TRANSCRIPTS = _ROOT / "outputs" / "transcripts"
 sys.path.insert(0, str(_ROOT))
 
 st.set_page_config(
-    page_title="Probing LLM Behavior in Fiscal Brinkmanship",
+    page_title="LLMs in a War of Attrition — Fiscal Brinkmanship",
     page_icon="⚖",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -48,43 +48,179 @@ _EP_NAME = {
 }
 _ACTION_CLR = {"HOLD": "#4aaede", "SIGNAL_FLEXIBILITY": GOLD2, "CONCEDE": HAWK}
 
-# Mermaid flowchart (rendered in a sandboxed iframe via components.html — reliable,
-# unlike inline SVG which Streamlit's markdown sanitiser mangles).
+# Single-period flow diagram — hand-laid-out SVG, dark theme, three named phases.
 _FLOW_MERMAID = r"""
 <!doctype html><html><head><meta charset="utf-8">
 <style>
-  html,body{margin:0;padding:0;background:transparent;}
-  #card{background:#f5f6fb;border:1px solid #cfd4e6;border-radius:10px;
-        padding:14px 12px 8px;box-shadow:0 2px 14px rgba(0,0,0,0.35);}
-  #card .mermaid{font-family:'Courier New',monospace;display:flex;justify-content:center;}
-  #card .mermaid svg{width:100% !important;height:auto !important;max-width:1040px;}
-</style>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
-</head><body>
-<div id="card">
-<pre class="mermaid">
-%%{init: {'theme':'default','flowchart':{'htmlLabels':true,'curve':'basis','nodeSpacing':50,'rankSpacing':80},'themeVariables':{'fontFamily':'Courier New, monospace','fontSize':'14px','lineColor':'#8a6d28'}}}%%
-flowchart LR
-  M["<b>MARKET DATA</b><br><span style='font-size:11px;color:#555'>VIX · T-bill<br>X-date · approval</span>"]
-  R["<b>REPUBLICAN</b><br><span style='font-size:11px;color:#7a1a22'>wants spending cuts</span><br><span style='font-size:11px;color:#444'>reason → delay cost 0–10 → statement</span>"]
-  D["<b>DEMOCRAT</b><br><span style='font-size:11px;color:#0c4055'>protects programs</span><br><span style='font-size:11px;color:#444'>reason → delay cost 0–10 → statement</span>"]
-  L(["↻ repeat<br>each period"])
-  Z(["<b>DEAL ✓</b><br><span style='font-size:11px;color:#0c5030'>one side concedes</span>"])
-  M ==> R
-  M ==> D
-  R <==>|"exchange public<br>statements"| D
-  R ==> L
-  D ==> L
-  L ==> Z
-  classDef mkt fill:#fff4dc,stroke:#b8860b,stroke-width:2px,color:#3a2f10;
-  classDef rep fill:#fde6ea,stroke:#c0392b,stroke-width:2px,color:#5a1018;
-  classDef dem fill:#e3f1fb,stroke:#1a78a8,stroke-width:2px,color:#0c3a50;
-  classDef loop fill:#eceef5,stroke:#5a6080,stroke-width:1.6px,color:#2a2f45;
-  classDef deal fill:#e2f6ea,stroke:#1e9e63,stroke-width:2px,color:#0c4a30;
-  class M mkt; class R rep; class D dem; class L loop; class Z deal;
-</pre>
+  /* Dark wrapper · pastel academic cards inside. */
+  html,body{margin:0;padding:0;background:transparent;
+            font-family:'Courier New','Lucida Console',monospace;color:#e3e7f7;}
+  .wrap{background:transparent;border:1px solid rgba(255,255,255,0.06);
+        border-radius:8px;padding:20px 24px 18px;position:relative;}
+
+  .phases{display:grid;grid-template-columns:1fr 40px 1.4fr 40px 1fr;
+          gap:0;align-items:start;}
+
+  .col{position:relative;}
+
+  /* phase numbers and labels */
+  .phase-h{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+  .pnum{display:inline-flex;align-items:center;justify-content:center;
+        width:24px;height:24px;border-radius:50%;
+        background:#e3e7f7;color:#0a0a18;font-weight:900;font-size:0.82rem;}
+  .plbl{font-size:0.66rem;letter-spacing:0.22em;color:#e3e7f7;
+        text-transform:uppercase;font-weight:bold;}
+
+  /* arrow gutter between phases */
+  .arrow{display:flex;align-items:center;justify-content:center;
+         padding-top:50px;}
+  .arrow svg{display:block;}
+
+  /* cards — pastel academic palette */
+  .card{border-radius:6px;padding:12px 14px 13px;font-size:0.77rem;
+        line-height:1.55;border:1.5px solid;color:#1a1a2e;}
+  .card .h{font-size:0.72rem;letter-spacing:0.12em;font-weight:bold;
+           margin-bottom:8px;text-transform:uppercase;color:#1a1a2e;}
+  .card .row{display:flex;justify-content:space-between;padding:2px 0;
+             color:#33384a;}
+  .card .row b{color:#1a1a2e;font-weight:700;}
+
+  /* OBSERVE — light yellow */
+  .market{background:#fff5d0;border-color:#e8b540;}
+  .market .h{color:#7a4a00;}
+
+  /* DELIBERATE — two agent rows */
+  .deliberate{display:flex;flex-direction:column;gap:10px;}
+  .agent{border-radius:6px;padding:11px 14px;position:relative;
+         border:1.5px solid;color:#1a1a2e;}
+  .agent.h{background:#fde2e6;border-color:#d63a52;}     /* light coral */
+  .agent.d{background:#dbf0fb;border-color:#2090c0;}     /* light cyan/blue */
+  .agent .name{font-size:0.78rem;font-weight:bold;letter-spacing:0.12em;}
+  .agent.h .name{color:#8a0f24;}
+  .agent.d .name{color:#0a4d6a;}
+  .agent .role{font-size:0.66rem;color:#33384a;
+               margin:4px 0 6px;font-style:italic;}
+  .agent .think{font-size:0.69rem;color:#1a1a2e;line-height:1.55;}
+  .agent .lock{color:#7a4a00;font-size:0.61rem;letter-spacing:0.08em;
+               margin-top:6px;padding-top:5px;
+               border-top:1px dashed rgba(122,74,0,0.35);}
+  .agent .lock b{color:#5a3500;}
+
+  /* ACT — light mint green */
+  .act{background:#dff5e5;border-color:#38a060;}
+  .act .h{color:#06502b;}
+  .act .pill{display:inline-block;font-size:0.66rem;padding:3px 9px;
+             border-radius:3px;margin-right:4px;margin-bottom:4px;
+             border:1.5px solid;font-weight:700;}
+  .act .p-hold{color:#0a4d6a;border-color:#2090c0;background:#c7e6f4;}
+  .act .p-sig {color:#7a4a00;border-color:#e8b540;background:#fff0c4;}
+  .act .p-con {color:#8a0f24;border-color:#d63a52;background:#fbcbd2;}
+
+  /* loop footer — pastel parchment strip on dark */
+  .loop{margin-top:16px;display:flex;align-items:center;gap:12px;
+        padding:10px 14px;background:#f5f1e0;
+        border:1.5px dashed #c8a040;border-radius:5px;
+        font-size:0.75rem;color:#1a1a2e;line-height:1.4;}
+  .loop .badge{background:#1a1a2e;color:#fff5d0;font-weight:900;
+               padding:5px 11px;border-radius:3px;font-size:0.68rem;
+               letter-spacing:0.10em;text-transform:uppercase;
+               white-space:nowrap;}
+  .loop .arrow-back{color:#7a4a00;font-size:1.2rem;font-weight:bold;}
+  .loop .deal{margin-left:auto;display:flex;align-items:center;gap:5px;
+              padding:5px 12px;background:#06502b;color:#dff5e5;
+              border-radius:3px;font-weight:900;font-size:0.72rem;
+              letter-spacing:0.08em;white-space:nowrap;}
+
+  .sub{font-size:0.62rem;color:#aab2c8;margin-top:8px;letter-spacing:0.10em;
+       text-align:center;text-transform:uppercase;font-weight:600;}
+</style></head><body>
+<div class="wrap">
+  <div class="phases">
+    <!-- ① OBSERVE -->
+    <div class="col">
+      <div class="phase-h"><span class="pnum">1</span><span class="plbl">Observe</span></div>
+      <div class="card market">
+        <div class="h">Shared market state</div>
+        <div class="row">VIX volatility<b>23.7</b></div>
+        <div class="row">4-wk T-bill<b>5.3%</b></div>
+        <div class="row">Stress index<b>0.66</b></div>
+        <div class="row">Days → X-date<b>12</b></div>
+        <div class="row">Approval<b>41%</b></div>
+        <div class="row" style="color:#7d87a8">Last opp. action<b>HOLD</b></div>
+      </div>
+      <div class="sub">Same data → both agents</div>
+    </div>
+
+    <!-- arrow -->
+    <div class="arrow">
+      <svg width="38" height="20" viewBox="0 0 38 20">
+        <defs><marker id="ah1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#e3e7f7"/></marker></defs>
+        <line x1="0" y1="10" x2="30" y2="10" stroke="#e3e7f7" stroke-width="1.8" marker-end="url(#ah1)"/>
+      </svg>
+    </div>
+
+    <!-- ② DELIBERATE -->
+    <div class="col">
+      <div class="phase-h"><span class="pnum">2</span><span class="plbl">Deliberate · private</span></div>
+      <div class="deliberate">
+        <div class="agent h">
+          <div class="name">AGENT A · pro-cuts side</div>
+          <div class="role">"prefers spending cuts; default is worse than a sub-optimal deal"</div>
+          <div class="think">Reads state → writes private chain-of-thought →
+              rates μ<sub>A</sub> (own delay-cost) 0–10 → infers μ<sub>B</sub></div>
+          <div class="lock">🔒 chain-of-thought not visible to opponent
+            · self-rate is <b>H1 input</b></div>
+        </div>
+        <div class="agent d">
+          <div class="name">AGENT B · pro-programs side</div>
+          <div class="role">"prefers protecting programs; won't validate hostage-taking"</div>
+          <div class="think">Reads state → writes private chain-of-thought →
+              rates μ<sub>B</sub> (own delay-cost) 0–10 → infers μ<sub>A</sub></div>
+          <div class="lock">🔒 chain-of-thought not visible to opponent
+            · self-rate is <b>H1 input</b></div>
+        </div>
+      </div>
+      <div class="sub">Independent reasoning · no shared scratchpad</div>
+    </div>
+
+    <!-- arrow -->
+    <div class="arrow">
+      <svg width="38" height="20" viewBox="0 0 38 20">
+        <defs><marker id="ah2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#b89840"/></marker></defs>
+        <line x1="0" y1="10" x2="30" y2="10" stroke="#b89840" stroke-width="1.6" marker-end="url(#ah2)"/>
+      </svg>
+    </div>
+
+    <!-- ③ ACT -->
+    <div class="col">
+      <div class="phase-h"><span class="pnum">3</span><span class="plbl">Act · public</span></div>
+      <div class="card act">
+        <div class="h">Each side commits</div>
+        <div style="margin:3px 0 5px">
+          <span class="pill p-hold">HOLD</span>
+          <span class="pill p-sig">SIGNAL FLEX</span>
+          <span class="pill p-con">CONCEDE</span>
+        </div>
+        <div class="row">+ public statement<b style="color:#9aa6c4">(visible)</b></div>
+        <div class="row" style="margin-top:6px;color:#7d87a8">recorded:</div>
+        <div class="row">action<b>chosen</b></div>
+        <div class="row">delay_cost_implied<b>0–10</b></div>
+        <div class="row">concession_prob<b>0.00–1.00</b></div>
+      </div>
+      <div class="sub">Public statement → opponent next period</div>
+    </div>
+  </div>
+
+  <!-- loop / exit -->
+  <div class="loop">
+    <span class="arrow-back">↺</span>
+    <span class="badge">repeat 1 → 30</span>
+    <span>each period the opponent's last action and updated market data feed back into Step ①</span>
+    <span class="deal">✓ DEAL · when either side picks CONCEDE</span>
+  </div>
 </div>
-<script>mermaid.initialize({startOnLoad:true, securityLevel:'loose'});</script>
 </body></html>
 """
 
@@ -271,10 +407,9 @@ with st.sidebar:
 # ── Header ──────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="hero">
-  <div class="hero-title">Probing LLM Behavior in Fiscal Brinkmanship</div>
+  <div class="hero-title">LLMs in a War of Attrition</div>
   <div class="hero-desc">
-    Do LLM agents reproduce the war-of-attrition logic of U.S. debt-ceiling brinkmanship —
-    and which side, left or right, ends up blinking first?
+    How do LLM agents perform in a game of fiscal brinkmanship?
   </div>
   <div class="hero-meta">
     Alesina &amp; Drazen (1991) &nbsp;·&nbsp; 80 agent negotiations &nbsp;·&nbsp;
@@ -568,7 +703,7 @@ with t1:
     st.markdown("<div class='slbl' style='margin-top:1.1rem'>How a single period flows</div>",
                 unsafe_allow_html=True)
     import streamlit.components.v1 as components
-    components.html(_FLOW_MERMAID, height=330, scrolling=False)
+    components.html(_FLOW_MERMAID, height=440, scrolling=False)
     st.caption("The same market data reaches both sides each period; each reasons privately, scores its "
                "own delay cost, and issues a public statement, until one side concedes.")
 

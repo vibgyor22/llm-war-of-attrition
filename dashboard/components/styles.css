@@ -149,12 +149,13 @@ h1, h2, h3, h4 {
 
 .hero-desc {
   font-family: var(--f);
-  font-size: 1.02rem;
-  color: #cdd5ea;
-  letter-spacing: 0.02em;
-  line-height: 1.6;
+  font-size: 1.2rem;
+  color: #d4dcf0;
+  letter-spacing: 0.01em;
+  line-height: 1.5;
   font-weight: 600;
-  max-width: 880px;
+  max-width: 900px;
+  margin-top: 0.15rem;
 }
 
 .hero-meta {
@@ -1046,7 +1047,7 @@ hr { border-color: var(--bdr) !important; margin: 0.6rem 0 !important; }
 @media screen and (max-width: 768px) {
   .block-container { padding-left: 0.8rem !important; padding-right: 0.8rem !important; }
   .hero-title  { font-size: 1.25rem !important; letter-spacing: 0.05em !important; }
-  .hero-desc   { font-size: 0.88rem !important; }
+  .hero-desc   { font-size: 1.0rem !important; }
   .kpi-strip   { gap: 0.45rem; }
   .kpi         { min-width: 76px; padding: 0.42rem 0.7rem; }
   .kpi-n       { font-size: 1.05rem !important; }
