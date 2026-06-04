@@ -30,7 +30,7 @@ st.set_page_config(
     page_title="LLMs in a War of Attrition — Fiscal Brinkmanship",
     page_icon="⚖",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 if _CSS.exists():
     st.markdown(f"<style>{_CSS.read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
@@ -367,42 +367,22 @@ def stars(p):
     return "***" if p < 0.01 else "**" if p < 0.05 else "*" if p < 0.10 else ""
 
 
-# ── Sidebar (transparency: files, rows, missing flags) ──────────────────────
-with st.sidebar:
-    st.markdown("<span style='font-family:monospace;color:#8b6914;letter-spacing:0.1em'>"
-                "DATA PROVENANCE</span>", unsafe_allow_html=True)
-    st.divider()
-    def _row(ok, lbl, detail):
-        c = "pg" if ok else "pr"
-        return (f"<div style='margin-bottom:0.35rem'><span class='ping {c}'></span>"
-                f"<span style='font-family:monospace;font-size:0.7rem;color:#1a1a1a'>{lbl}</span><br>"
-                f"<span style='font-family:monospace;font-size:0.62rem;color:#5c5c5c;margin-left:12px'>"
-                f"{detail}</span></div>")
-    sim_p = _RESULTS / "simulation_results.parquet"
-    prd_p = _RESULTS / "period_level_data.parquet"
-    reg_p = _RESULTS / "regression_results.json"
-    st.markdown(
-        _row(sim_p.exists(), "simulation_results.parquet",
-             f"{len(sim)} rows loaded" if HAS else "MISSING") +
-        _row(prd_p.exists(), "period_level_data.parquet",
-             f"{len(period)} rows loaded" if not period.empty else "MISSING") +
-        _row(n_tx > 0, "transcripts/*.jsonl", f"{n_tx} files") +
-        _row(reg_p.exists(), "regression_results.json",
-             "found" if reg_p.exists() else "absent — OLS fit live (statsmodels)"),
-        unsafe_allow_html=True)
-    st.divider()
-    if HAS:
-        st.markdown(
-            "<span style='font-family:monospace;font-size:0.64rem;color:#5c5c5c;line-height:1.6'>"
-            f"<b style='color:#121212'>Unit of analysis</b><br>"
-            f"{len(sim)} runs = 40 scenarios × {{historical, masked}}.<br>"
-            f"Pairing keyed off the <code style='color:#8b6914'>_masked</code> id suffix "
-            f"({(~sim['masked']).sum()} historical / {sim['masked'].sum()} masked).<br>"
-            f"Primary stats use historical runs; masked runs reported as replication."
-            "</span>", unsafe_allow_html=True)
-    st.divider()
-    st.caption("Agents:  claude-haiku-4-5\nJudge:   claude-sonnet-4-6\n"
-               "Theory:  Alesina & Drazen (1991)\nData:    FRED VIXCLS, TB4WK; polls")
+sim_p = _RESULTS / "simulation_results.parquet"
+prd_p = _RESULTS / "period_level_data.parquet"
+reg_p = _RESULTS / "regression_results.json"
+
+
+def _status_card(ok: bool, label: str, detail: str) -> str:
+    cls = "ok" if ok else "miss"
+    state = "loaded" if ok else "missing"
+    return (
+        f"<div class='prov-card {cls}'>"
+        f"<div class='prov-k'>{state}</div>"
+        f"<div class='prov-h'>{label}</div>"
+        f"<div class='prov-d'>{detail}</div>"
+        f"</div>"
+    )
+
 
 # ── Header ──────────────────────────────────────────────────────────────────
 st.markdown("""
@@ -1167,6 +1147,29 @@ Per-period output:
 | Total runs | 80 (40 scenarios × 2) |
 | Max periods | 30 |
 """)
+        st.markdown("<div class='slbl' style='margin-top:0.8rem'>Data provenance</div>", unsafe_allow_html=True)
+        st.markdown(
+            "<div class='prov-grid'>"
+            + _status_card(sim_p.exists(), "simulation_results.parquet",
+                           f"{len(sim)} simulation rows" if HAS else "not found")
+            + _status_card(prd_p.exists(), "period_level_data.parquet",
+                           f"{len(period)} period rows" if not period.empty else "not found")
+            + _status_card(n_tx > 0, "transcripts/*.jsonl", f"{n_tx} transcript files")
+            + _status_card(reg_p.exists(), "regression_results.json",
+                           "precomputed regression file" if reg_p.exists() else "OLS fit live when needed")
+            + "</div>",
+            unsafe_allow_html=True,
+        )
+        if HAS:
+            st.markdown(
+                "<div class='prov-note'>"
+                f"<b>Unit of analysis:</b> {len(sim)} runs = 40 scenarios x historical/masked variants. "
+                f"Pairing uses the <code>_masked</code> suffix "
+                f"({(~sim['masked']).sum()} historical / {sim['masked'].sum()} masked). "
+                "Primary figures use historical runs where noted; masked runs serve as contamination checks."
+                "</div>",
+                unsafe_allow_html=True,
+            )
         st.markdown("<div class='slbl' style='margin-top:0.8rem'>Data sources</div>", unsafe_allow_html=True)
         for s, d in [("FRED VIXCLS", "daily VIX close; equity-volatility proxy"),
                      ("FRED TB4WK", "4-week T-bill rate; short-term default-risk proxy"),
