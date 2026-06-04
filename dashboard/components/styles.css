@@ -745,6 +745,7 @@ hr { border-color: var(--bdr) !important; margin: 0.6rem 0 !important; }
 }
 
 /* ── 6-up metric row ────────────────────────────────────────────── */
+.bigstat-row.four { grid-template-columns: repeat(4, 1fr); }
 .bigstat-row.six { grid-template-columns: repeat(6, 1fr); }
 
 /* ── Episode context cards ──────────────────────────────────────── */
@@ -1054,7 +1055,7 @@ hr { border-color: var(--bdr) !important; margin: 0.6rem 0 !important; }
   .kpi-l       { font-size: 0.54rem !important; }
   .flow        { grid-template-columns: repeat(2, 1fr); }
   .theory-grid, .explain { grid-template-columns: 1fr; }
-  .bigstat-row, .bigstat-row.six { grid-template-columns: repeat(2, 1fr); }
+  .bigstat-row, .bigstat-row.four, .bigstat-row.six { grid-template-columns: repeat(2, 1fr); }
   .navcard-row, .kf-row { grid-template-columns: 1fr; }
   .epi-grid    { grid-template-columns: repeat(2, 1fr); }
   .stepper     { grid-template-columns: 1fr; }

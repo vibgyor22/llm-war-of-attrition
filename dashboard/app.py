@@ -44,7 +44,7 @@ _EP_NAME = {
     "2011": "2011 — Budget Control Act",
     "2013": "2013 — Government Shutdown",
     "2023": "2023 — Fiscal Responsibility Act",
-    "2025_counterfactual": "2026 — Synthetic counterfactual",
+    "2025_counterfactual": "2025 — Fictional counterfactual",
 }
 _ACTION_CLR = {"HOLD": "#4aaede", "SIGNAL_FLEXIBILITY": GOLD2, "CONCEDE": HAWK}
 
@@ -243,11 +243,10 @@ _EP_META = {
               "Act, signed 3 Jun, suspended the ceiling to 1 Jan 2025 with discretionary caps. "
               "Short-dated bill yields carried a visible X-date premium."),
         data="FRED window peak: 4-wk T-bill 6.64%, VIX 23.6", syn=False),
-    "2025_counterfactual": dict(ctx="Synthetic control",
-        text=("A fabricated 2026 scenario with no real-world referent (window 15 Jun – 15 Jul 2026). "
-              "Synthetic macro baselines (VIX ≈ 26, T-bill ≈ 4.2%) with extrapolated fiscal "
-              "fundamentals (debt/GDP 128%). Included as an out-of-sample test insulated from "
-              "training-data leakage."),
+    "2025_counterfactual": dict(ctx="Fictional episode",
+        text=("A fabricated debt-ceiling scenario with no real-world referent — out-of-sample "
+              "control for memorization. Synthetic macro baselines (VIX ≈ 26, T-bill ≈ 4.2%) and "
+              "extrapolated fiscal fundamentals (debt/GDP 128%)."),
         data="Synthetic baselines: VIX ≈ 26, T-bill ≈ 4.2%, debt/GDP 128%", syn=True),
 }
 
@@ -409,11 +408,8 @@ st.markdown("""
 <div class="hero">
   <div class="hero-title">LLMs in a War of Attrition</div>
   <div class="hero-desc">
-    How do LLM agents perform in a game of fiscal brinkmanship?
-  </div>
-  <div class="hero-meta">
-    Alesina &amp; Drazen (1991) &nbsp;·&nbsp; 80 agent negotiations &nbsp;·&nbsp;
-    2011 · 2013 · 2023 · 2026 (synthetic)
+    Two AI negotiators face a U.S. debt-ceiling deadline. Who breaks first when market stress rises?
+    Built to test Alesina &amp; Drazen (1991).
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -480,83 +476,72 @@ with t1:
     sec("01", "Abstract")
     st.markdown(
         "<div class='lead'>"
-        "I cast two large-language-model agents as the opposing sides of a U.S. debt-ceiling fight — a "
-        "<span class='hl-h'>Republican</span> (fiscal conservative, wants spending cuts) and a "
-        "<span class='hl-d'>Democrat</span> (fiscal liberal, protects programs) — give each its real "
-        "priorities and political constraints, and run them through four debt-ceiling deadlines, period "
-        "by period, on live market data. I assign each side its stance but never script who gives in "
-        "or when. "
-        "I then test the <span class='hl-w'>war-of-attrition</span> prediction of Alesina &amp; Drazen "
-        "(1991): the side that suffers more from delay concedes first. "
-        f"The twist — although the Republican is cast as the tough fiscal <i>hawk</i>, it is the side "
-        f"that <span class='hl-g'>blinks first in {rep_pct:.0f}% of runs</span>; in game-theory terms, "
-        "the fiscal hawk plays the strategic dove."
+        "Debt-ceiling standoffs are a <span class='hl-w'>war of attrition</span>: both sides want a deal, "
+        "but each wants the other to take the painful concessions, so both wait while default risk and "
+        "market stress build (Alesina &amp; Drazen, 1991). "
+        "Here, two LLM agents — <span class='hl-h'>Republican</span> (spending cuts, no tax hikes) and "
+        "<span class='hl-d'>Democrat</span> (protect programs) — negotiate period-by-period on real "
+        "dates and FRED data (2011, 2013, 2023, plus one <i>fictional</i> episode). Stances are fixed; "
+        "who concedes and when is not. "
+        "<b>Takeaway:</b> the side that reports more pain from delay tends to concede sooner; "
+        f"higher market stress closes deals faster; the Republican side concedes first in "
+        f"<span class='hl-g'>{rep_pct:.0f}%</span> of runs because it rates delay as costlier."
         "</div>", unsafe_allow_html=True)
 
     st.markdown("<div style='height:0.7rem'></div>", unsafe_allow_html=True)
     st.markdown(
-        f"<div class='scale'><span class='lbl'>Scale of the experiment</span> &nbsp; "
-        f"<b>{n}</b> negotiations "
-        f"(4 episodes × 5 stress regimes × 2 replicates × 2 information conditions), each up to "
-        f"30 periods with two agents acting independently — totalling <b>{n_dec:,}</b> individual LLM "
-        f"agent decisions, every one logged with its private reasoning, public statement, action and "
-        f"self-rated delay cost.</div>", unsafe_allow_html=True)
+        f"<div class='scale'><span class='lbl'>Scale</span> &nbsp; "
+        f"<b>{n}</b> runs · 4 episodes · 5 stress levels (A→E) · up to 30 periods · "
+        f"<b>{n_dec:,}</b> logged agent decisions (reasoning, action, delay-cost score).</div>",
+        unsafe_allow_html=True)
 
     sep()
 
     # ═══ 2 · HEADLINE RESULTS ═════════════════════════════════════════════════
     sec("02", "Key findings")
     fc1, fc2, fc3 = st.columns(3, gap="medium")
+    med_a = f"{med_lo:.0f}" if med_lo is not None and not np.isnan(med_lo) else "—"
+    med_e = f"{med_hi:.0f}" if med_hi is not None and not np.isnan(med_hi) else "—"
     with fc1:
         st.markdown(f"""
-<div class="interp h"><div class="interp-tag h">Central result · emergent role reversal</div>
-  <div class="interp-h">The fiscal hawk plays the dove</div>
+<div class="interp h"><div class="interp-tag h">Result 1 · who breaks first</div>
+  <div class="interp-h">Republican concedes in {rep_pct:.0f}% of runs</div>
   <ul>
-    <li>The Republican (fiscal-conservative) side is the first to accept a deal in <b>{hawk_c} of {n}</b> negotiations ({rep_pct:.0f}%), despite a brief that stresses toughness.</li>
-    <li>Behaviourally it occupies the war-of-attrition <b>dove</b> role; the Democrat persists as the <b>hawk</b>. The outcome is measured, never assigned.</li>
+    <li><b>What:</b> Republican agent accepts a deal before the Democrat in <b>{hawk_c}/{n}</b> runs.</li>
+    <li><b>Why:</b> it self-rates higher delay cost (<b>{hawk_dc:.1f}</b> vs <b>{dove_dc:.1f}</b>/10) — deadlock hurts its platform more when rates spike and fiscal credibility is on the line.</li>
   </ul>
-  <div class="stat">Republican concedes {rep_pct:.0f}% of decisive outcomes · {hawk_c}/{n}</div></div>
+  <div class="stat">Rep mean delay cost {hawk_dc:.1f} &gt; Dem {dove_dc:.1f}</div></div>
 """, unsafe_allow_html=True)
     with fc2:
         st.markdown(f"""
-<div class="interp d"><div class="interp-tag d">H1 · delay cost predicts timing</div>
-  <div class="interp-h">The faction hurting more concedes first</div>
+<div class="interp d"><div class="interp-tag d">Result 2 · pain predicts timing</div>
+  <div class="interp-h">Higher relative delay cost → earlier deal</div>
   <ul>
-    <li>Concession timing is decreasing in the Republican/Democrat self-rated delay-cost ratio — the private-type revelation at the core of Alesina-Drazen.</li>
-    <li>The effect survives the memory-blocked (masked) runs, so it reflects strategic reasoning, not recall of history.</li>
+    <li><b>What:</b> runs where the Republican/Democrat delay-cost ratio is higher end sooner (negative slope).</li>
+    <li><b>Why:</b> matches Alesina–Drazen — the side that suffers more from waiting folds first; same sign in masked replays, so not memorising past headlines.</li>
   </ul>
-  <div class="stat">{primary_str()}; masked replication {masked_str()}</div></div>
+  <div class="stat">{primary_str()}; masked {masked_str()}</div></div>
 """, unsafe_allow_html=True)
     with fc3:
         st.markdown(f"""
-<div class="interp"><div class="interp-tag">Mechanism · why the right yields</div>
-  <div class="interp-h">Bond-market pain lands on the right</div>
+<div class="interp"><div class="interp-tag">Result 3 · stress ends the standoff</div>
+  <div class="interp-h">Crisis conditions close deals faster</div>
   <ul>
-    <li>The Republican self-rates a higher cost of delay than the Democrat (<b>{hawk_dc:.1f}</b> vs <b>{dove_dc:.1f}</b> / 10).</li>
-    <li>Rising bond yields damage Republicans more: they directly contradict the fiscal-discipline platform and render signature tax-cut policy financially impossible to pass.</li>
-    <li>Democratic spending is already priced into the curve, leaving the left more insulated from sudden rate shocks — so the higher-cost side concedes first.</li>
+    <li><b>What:</b> median concession period drops from condition A ({med_a}) to E ({med_e}); stress and timing correlate r = {stress_r:.2f}.</li>
+    <li><b>Why:</b> higher VIX/T-bill stress in the prompt raises perceived cost of waiting for both sides, so attrition ends sooner.</li>
   </ul>
-  <div class="stat">mean self-rated delay cost: Rep {hawk_dc:.1f} &gt; Dem {dove_dc:.1f}</div></div>
+  <div class="stat">A→E stress ramp · see bar chart below</div></div>
 """, unsafe_allow_html=True)
-    st.caption("Mapping: the “Republican” agent is the fiscal-conservative role (HAWK in the raw data "
-               "and Transcripts tab); the “Democrat” is the fiscal-liberal role (DOVE). “Conceding” = "
-               "accepting a deal, i.e. playing the strategic dove. The pattern also holds on the "
-               "synthetic 2026 scenario — strategy, not memorised history.")
+    st.caption("Republican = HAWK agent, Democrat = DOVE in raw data. Concede = first side to accept a deal.")
 
     st.markdown(f"""
-<div class="bigstat-row six">
-  <div class="bigstat"><div class="bigstat-n">{n}</div><div class="bigstat-l">Negotiation runs</div>
-    <div class="bigstat-sub">40 scenarios × 2 mask states</div></div>
-  <div class="bigstat"><div class="bigstat-n g">{agree:.0f}%</div><div class="bigstat-l">Reached agreement</div>
-    <div class="bigstat-sub">0 of {n} hit the 30-period cap</div></div>
-  <div class="bigstat"><div class="bigstat-n">{med_all:.0f}</div><div class="bigstat-l">Median period</div>
-    <div class="bigstat-sub">all runs, n = {n}</div></div>
-  <div class="bigstat"><div class="bigstat-n h">{rep_pct:.0f}%</div><div class="bigstat-l">Republican concedes</div>
-    <div class="bigstat-sub">{hawk_c} of {n} runs</div></div>
-  <div class="bigstat"><div class="bigstat-n d">{o_h['beta']:.0f}</div><div class="bigstat-l">Delay-cost slope β</div>
-    <div class="bigstat-sub">historical, p = {o_h['p']:.3f}</div></div>
-  <div class="bigstat"><div class="bigstat-n gold">{stress_r:.2f}</div><div class="bigstat-l">Stress × timing r</div>
-    <div class="bigstat-sub">Pearson, n = {n}</div></div>
+<div class="bigstat-row four">
+  <div class="bigstat"><div class="bigstat-n">{n}</div><div class="bigstat-l">Runs</div></div>
+  <div class="bigstat"><div class="bigstat-n h">{rep_pct:.0f}%</div><div class="bigstat-l">Republican concedes first</div>
+    <div class="bigstat-sub">{hawk_c}/{n}</div></div>
+  <div class="bigstat"><div class="bigstat-n">{med_all:.0f}</div><div class="bigstat-l">Median periods to deal</div></div>
+  <div class="bigstat"><div class="bigstat-n d">{o_h['beta']:.0f}</div><div class="bigstat-l">H1 slope β</div>
+    <div class="bigstat-sub">p = {o_h['p']:.3f}</div></div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -637,25 +622,12 @@ with t1:
     with tcol:
         st.markdown(
             "<div class='lead' style='margin-bottom:0.8rem'>"
-            "A debt-ceiling standoff is, formally, a <b>war of attrition</b>. Both sides prefer any deal "
-            "to a default, yet each would rather the <i>other</i> side absorb the politically painful "
-            "concessions — so both wait. Waiting is itself costly: markets fall, approval erodes, default "
-            "draws nearer. The model's central prediction is therefore sharp — <span class='hl-g'>the side "
-            "for which waiting is more costly concedes first</span> — and the moment of concession reveals "
-            "which side was under greater pressure, even though that pressure is private. Alesina &amp; "
-            "Drazen (1991) formalised this logic to explain why economically necessary fiscal "
-            "stabilisations are delayed; this project asks whether LLM agents, told only each side's "
-            "priorities, reproduce the same equilibrium."
+            "Both sides prefer a deal to default, but each wants the <i>other</i> to swallow the painful "
+            "concessions — so both wait. Waiting costs money and credibility as markets stress rises. "
+            "Alesina &amp; Drazen (1991): <span class='hl-g'>whoever hurts more from delay concedes "
+            "first</span>. This dashboard checks whether LLM agents follow that rule when given only "
+            "each party's fiscal priorities."
             "</div>", unsafe_allow_html=True)
-        st.markdown(
-            "<div class='gtnote'><b>A note on the word “hawk.”</b> It carries two senses here, and the "
-            "whole result turns on the difference. A <span class='h'>fiscal hawk</span> is a policy "
-            "stance — favouring austerity — the role assigned to the Republican agent. A "
-            "<span class='d'>game-theoretic</span> hawk is a behaviour: in the Hawk–Dove game (of which "
-            "the war of attrition is the timed form), to play <i>hawk</i> is to escalate and hold out, to "
-            "play <i>dove</i> is to yield. The finding is that the fiscal hawk behaves as the "
-            "game-theoretic <span class='d'>dove</span> — the side built to be tough is the one that "
-            "folds.</div>", unsafe_allow_html=True)
     with ecol:
         st.markdown("<div class='slbl'>The formal core</div>", unsafe_allow_html=True)
         st.latex(r"P(i\ \text{concedes first}) = \frac{\mu_i}{\mu_i + \mu_j}")
@@ -1077,7 +1049,8 @@ with t6:
         st.markdown("<span style='font-family:monospace;font-size:0.76rem;color:#b0bcd4;line-height:1.7'>"
                     "The per-period <code>delay_cost_implied</code> score (0–10, self-reported by each agent) "
                     "proxies the latent rate λ; the Republican/Democrat ratio of run-means is the H1 regressor. The "
-                    "period of the first CONCEDE is the realized stopping time T*. Condition A→E scales s. The two factions are presented as the Republican (fiscal-hawk) and Democrat (fiscal-dove) sides; the raw data and code label them HAWK and DOVE.</span>",
+                    "period of the first CONCEDE is the realized stopping time T*. Condition A→E scales s. "
+                    "Republican and Democrat agents; code labels HAWK and DOVE.</span>",
                     unsafe_allow_html=True)
 
         st.markdown("<div class='slbl' style='margin-top:1rem'>Hypotheses</div>", unsafe_allow_html=True)
@@ -1099,7 +1072,7 @@ with t6:
         st.markdown("<span style='font-family:monospace;font-size:0.76rem;color:#b0bcd4;line-height:1.7'>"
                     "<b>Threat:</b> historical episodes are in the training corpus. "
                     "<b>Mitigations:</b> (i) masked replays with outcome hidden and identifying detail removed; "
-                    "(ii) a synthetic 2026 counterfactual as an out-of-sample test; (iii) the primary H1 "
+                    "(ii) a fictional 2025 counterfactual as an out-of-sample test; (iii) the primary H1 "
                     "estimate is fit on the 40 historical runs, with masked runs reported as replication to "
                     "avoid double-counting paired observations.</span>", unsafe_allow_html=True)
 
@@ -1156,7 +1129,7 @@ Per-period output:
         st.markdown("""
 | Parameter | Value |
 |---|---|
-| Episodes | 2011, 2013, 2023, 2026-CF |
+| Episodes | 2011, 2013, 2023, 2025-CF (fictional) |
 | Conditions | 5 (A–E) |
 | Replicates | 2 per cell |
 | Mask states | historical + masked |

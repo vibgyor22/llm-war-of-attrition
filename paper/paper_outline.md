@@ -6,7 +6,9 @@
 
 ## Abstract
 
-We test whether large language model (LLM) agents acting as political factions — a fiscal conservative HAWK and a fiscal liberal DOVE — naturally reproduce the equilibrium dynamics of the Alesina-Drazen (1991) war of attrition model of fiscal stabilization delay. Using the Anthropic Claude Haiku-4.5 API, we simulate approximately 500 negotiations across four US debt ceiling episodes (2011, 2013, 2023, and a fictional 2025 counterfactual designed to control for historical memorization) under five market-stress experimental conditions. We find that (i) agents with higher revealed delay costs concede significantly earlier, consistent with H1; (ii) empirical concession hazard rates increase with market stress across conditions A–E, consistent with H2; (iii) simulation-derived concession probabilities are positively correlated with contemporaneous Treasury bill yield anomalies during the historical episodes, consistent with H4. Cox proportional hazard estimates show that a unit increase in the self-reported cost ratio multiplies the concession hazard by [X]×. Our results suggest that the Alesina-Drazen war of attrition mechanism emerges endogenously from strategic LLM reasoning rather than being externally imposed, lending new validity to LLM-based political economy simulation.
+When fiscal adjustment has distributional stakes, opposing groups may shift the burden onto others. Negotiation becomes a war of attrition: each side waits for the other to concede until delay is too costly. Alesina and Drazen (1991) formalize this logic for delayed stabilizations; direct tests of their comparative statics are scarce because real negotiation timing is rarely observed cleanly.
+
+We study whether LLM agents in U.S. debt-ceiling settings reproduce the same strategic logic. Two agents—a fiscal conservative and a fiscal liberal—face period-by-period market stress and an approaching statutory deadline; concession is emergent, not scripted. Across three historical episodes (2011, 2013, 2023), a fictional counterfactual episode, and five graded stress environments, we find that (i) the side reporting greater relative delay cost concedes earlier; (ii) concession hazard rises with market stress; and (iii) simulated hazard co-moves with Treasury bill yield anomalies in historical episodes. Cox estimates link self-reported delay costs to concession timing. The patterns are consistent with the Alesina–Drazen mechanism arising from strategic interaction rather than imposed equilibrium rules.
 
 **JEL**: D72, D74, H62, C63
 
@@ -15,9 +17,9 @@ We test whether large language model (LLM) agents acting as political factions �
 ## 1. Introduction
 
 ### 1.1 Motivation
-The timing of fiscal stabilization remains one of the central puzzles of political economy. Alesina and Drazen (1991) — henceforth AD — showed that stabilization is delayed because competing factions with private costs of delay wait for the other side to concede. The model predicts: (i) concession timing decreases in relative delay cost; (ii) deadline proximity increases hazard; (iii) external crisis pressure raises concession probability.
+Countries often continue fiscal policies everyone agrees are unsustainable in the long run. Why is adjustment not adopted once the need is recognized? Alesina and Drazen (1991) — henceforth AD — argue that delay is rational when heterogeneous groups disagree over who bears the cost of stabilization: each waits for others to concede until waiting becomes too costly.
 
-Until now, testing AD required observational data on negotiation timing, which is scarce, noisy, and contaminated by selection. We propose a new methodology: simulate AD-style negotiations using LLM agents and test whether their behavior reproduces the theoretical predictions.
+The U.S. debt ceiling is a modern instance: broad agreement that default must be avoided, sharp disagreement over spending versus revenue. We ask whether LLM agents given opposed fiscal objectives and historically grounded market context reproduce AD comparative statics—higher delay cost concedes earlier; rising stress shortens the standoff—without observational noise on private types.
 
 ### 1.2 Research Questions
 1. Do LLM agents generate concession dynamics consistent with the AD war of attrition model?
