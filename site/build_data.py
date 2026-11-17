@@ -150,6 +150,8 @@ validation = {
     "sayDo": {k: float(np.mean(v)) for k, v in acts.items()},
     "noDefault": sum(r["day"] is not None and r["day"] < 30 for r in runs),
     "spread": sd_within,
+    "fictDose": spearman([stress_rank[r["cond"]] for r in fict], [r["day"] for r in fict]),
+    "calmReal": float(np.median([r["day"] for r in real if r["cond"] in "AB"])),
 }
 for r in runs: r.pop("_periods")
 

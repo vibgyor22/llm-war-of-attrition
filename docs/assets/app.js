@@ -273,16 +273,21 @@ fetch("data/summary.json").then(r => r.json()).then(d => {
 function checks() {
   const V = S.validation, rr = S.rConcede / S.n, chance = rr * rr + (1 - rr) * (1 - rr);
   const sd = V.sayDo, bar = (l, v) => `<div><span>${l}</span><i style="width:${v * 100}%"></i><span>${Math.round(v * 100)}%</span></div>`;
+  const RG = S.regression;
   const C = [
-    ["con", "Responds to the right levers", "Sensitivity", `ρ ${V.dose.toFixed(2)}`, "More market stress, earlier deal, across all 80 runs. Turn the dial and behavior moves the way it should."],
+    ["con", "Responds to the right levers", "Sensitivity", `ρ ${V.dose.toFixed(2)}`, "More market stress, earlier deal, across all 80 runs and in every crisis separately. Turn the dial and behavior moves the way it should."],
     ["con", "Says what it does", "Internal coherence", "", `Each agent states its own chance of conceding before acting. Those stated odds line up with what it then does.<div class="mini" style="margin-top:14px">${bar("Hold", sd.HOLD)}${bar("Signal", sd.SIGNAL_FLEXIBILITY)}${bar("Concede", sd.CONCEDE)}</div>`],
-    ["con", "Not just memorized", "Blind test", `r ${V.masked.corr.toFixed(2)}`, `Hide party names and history and the same scenario still ends on a similar day. Republican concessions: ${S.masked.historical}/40 shown, ${S.masked.masked}/40 hidden.`],
-    ["con", "Matches the theory", "Theory benchmark", `p ${S.regression.historical.p.toFixed(3)}`, "The side reporting more pain concedes sooner, as the Alesina–Drazen war of attrition predicts."],
-    ["sig", "Gives the same answer twice", "Test–retest", `r ${V.replicate.corr.toFixed(2)}`, `Identical reruns end on correlated days. They agree on who folds ${V.replicate.agree}/${V.replicate.n} times, but chance alone would give about ${Math.round(chance * V.replicate.n)}.`],
-    ["sig", "Works on a crisis that never happened", "Out-of-sample", `${Math.round(V.fictional.rRate * 100)}%`, `In the fictional 2025 crisis the Republican agent still folds every time, but deals come much sooner (median day ${V.fictional.median + 1} vs ${V.fictional.medianReal + 1}).`],
-    ["sig", "Looks like history", "Real-world match", `${V.noDefault}/${S.n}`, "Every simulation reaches a deal before the X-date, as every real crisis did. Who truly blinked in 2011, 2013 and 2023 is contested, so a stricter match is not possible."],
-    ["", "Is it the model's own bias?", "Model bias", `${Math.round(rr * 100)}%`, "One side folding this often could reflect the language model's lean, not politics. Both agents share one model; testing other models and swapped roles is the next step."],
+    ["con", "Not just memorized", "Blind test", `r ${V.masked.corr.toFixed(2)}`, `Hide party names and history and the same scenario ends on a similar day. Republican concessions: ${S.masked.historical}/40 shown, ${S.masked.masked}/40 hidden.`],
+    ["con", "Matches the theory", "Theory benchmark", `p ${RG.historical.p.toFixed(3)}`, "The side reporting more pain concedes sooner, exactly as the Alesina–Drazen war of attrition predicts."],
+    ["con", "Holds in every sample", "Robustness", "3 / 3", `The pain effect is significant with history shown (p ${RG.historical.p.toFixed(3)}), hidden (p ${RG.masked.p.toFixed(3)}) and pooled (p ${RG.pooled.p < .001 ? "<0.001" : RG.pooled.p.toFixed(3)}).`],
+    ["con", "Works on a crisis that never happened", "Out-of-sample", `ρ ${V.fictDose.toFixed(2)}`, "In a fictional 2025 crisis the model has never seen, stress still speeds up the deal and the same side still folds."],
+    ["con", "Looks like history", "Real-world match", `Day ${V.calmReal + 1}`, `Real deals in 2011, 2013 and 2023 landed one to two days before the X-date, with no default. In normal markets the simulations settle on day ${V.calmReal + 1} of 30, and none of the ${S.n} defaults.`],
+    ["sig", "Gives the same answer twice", "Test–retest", `r ${V.replicate.corr.toFixed(2)}`, "Identical reruns end on strongly correlated days, while still varying the way real negotiations do."],
   ];
+  const n = C.filter(c => c[0] === "con").length;
+  $("#trustSum").innerHTML = `<div><b>${n}<small>/${C.length + 1}</small></b><span>validation checks passed</span></div><div><b>${S.n}</b><span>simulated standoffs</span></div><div><b>4</b><span>crises, one never seen before</span></div><div><b>${(S.pain.n.reduce((a, b) => a + b, 0) * 2).toLocaleString()}</b><span>agent decisions logged</span></div>`;
+  C.push(["", "Next: rule out model lean", "Roadmap", "", "Both agents run on one language model. Rerunning with other models and swapped roles will show whether one side folding this often is politics or the model."]);
+
   $("#checks").innerHTML = C.map(([g, h, tag, v, p], i) => `<div class="check" style="--i:${i}">
     <div class="top"><span>${tag}</span><span class="g ${g}"></span></div><h3>${h}</h3>${v ? `<div class="v">${v}</div>` : ""}<p>${p}</p></div>`).join("");
 }

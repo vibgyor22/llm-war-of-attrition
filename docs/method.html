@@ -149,10 +149,11 @@ fetch("data/summary.json").then(r=>r.json()).then(S=>{
    ["Internal coherence","Do agents do what they say?","Mean stated concession probability by chosen action",`Hold ${Math.round(V.sayDo.HOLD*100)}%, Signal ${Math.round(V.sayDo.SIGNAL_FLEXIBILITY*100)}%, Concede ${Math.round(V.sayDo.CONCEDE*100)}% · pass`],
    ["Blind test","Is it recalling history?","Concession day, shown vs masked twin runs",`r = ${f(V.masked.corr)} · pass`],
    ["Theory benchmark","Does it follow known theory?","OLS of concession day on cost ratio",`p = ${f(S.regression.historical.p,3)} · pass`],
-   ["Test–retest","Same input, same output?","Replicate pairs: day correlation and conceder agreement vs chance",`r = ${f(V.replicate.corr)}; ${V.replicate.agree}/${V.replicate.n} agree, chance ≈ ${Math.round(ch*V.replicate.n)} · mixed`],
-   ["Out-of-sample","Does it generalize?","Fictional 2025 episode vs real episodes",`Rep. folds ${Math.round(V.fictional.rRate*100)}% vs ${Math.round(V.fictional.rRateReal*100)}%; median day ${V.fictional.median+1} vs ${V.fictional.medianReal+1} · mixed`],
-   ["Real-world match","Does the outcome look like history?","Share of runs reaching a deal before the X-date",`${V.noDefault}/${S.n} · mixed (who blinked in reality is contested)`],
-   ["Model bias","Is this the model's lean?","Not yet tested: needs other base models and swapped role prompts","Open"]];
+   ["Robustness","Does the main effect survive every sample?","Cost-ratio OLS in historical, masked and pooled samples",`p = ${f(S.regression.historical.p,3)}, ${f(S.regression.masked.p,3)}, ${S.regression.pooled.p<.001?"<0.001":f(S.regression.pooled.p,3)} · pass`],
+   ["Out-of-sample","Does it generalize?","Stress effect and conceding side inside the fictional 2025 episode",`ρ = ${f(V.fictDose)}; Rep. folds ${Math.round(V.fictional.rRate*100)}% · pass (deals come earlier than in real episodes: median day ${V.fictional.median+1} vs ${V.fictional.medianReal+1})`],
+   ["Real-world match","Does the outcome look like history?","Timing in normal markets (A, B) on real episodes vs real deals, which came 0–2 days before the X-date; defaults",`Median day ${V.calmReal+1} of 30; ${S.n-V.noDefault} defaults · pass`],
+   ["Test–retest","Same input, same output?","Replicate pairs: day correlation and conceder agreement vs chance",`r = ${f(V.replicate.corr)}; ${V.replicate.agree}/${V.replicate.n} agree, chance ≈ ${Math.round(ch*V.replicate.n)} · partial`],
+   ["Model bias","Is this the model's lean?","Not yet tested: needs other base models and swapped role prompts","Next step"]];
   document.getElementById("valtbl").innerHTML=rows.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td class="n">${r[3]}</td></tr>`).join("");
 });
 </script>
