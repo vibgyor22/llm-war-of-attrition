@@ -118,9 +118,42 @@ flex = {k: float(np.mean([1 if r[k] is not None else 0 for r in runs])) for k in
 masked = {"historical": sum(r["conceder"] == "R" for r in runs if not r["masked"]),
           "masked": sum(r["conceder"] == "R" for r in runs if r["masked"])}
 higherPain = sum(r["ratio"] > 1 for r in runs)
+# ---------- validation checks ----------
+def spearman(a, b):
+    ra, rb = np.argsort(np.argsort(a)), np.argsort(np.argsort(b))
+    return float(np.corrcoef(ra, rb)[0, 1])
+key = lambda r: (r["ep"], r["cond"], r["masked"])
+pairs = {}
+for r in runs: pairs.setdefault(key(r), []).append(r)
+reps = [v for v in pairs.values() if len(v) == 2]
+rep_same = sum(a["conceder"] == b["conceder"] for a, b in reps)
+rep_corr = float(np.corrcoef([a["day"] for a, b in reps], [b["day"] for a, b in reps])[0, 1])
+mpairs = {}
+for r in runs: mpairs.setdefault((r["ep"], r["cond"], r["rep"]), {})[r["masked"]] = r
+mp = [v for v in mpairs.values() if len(v) == 2]
+mask_corr = float(np.corrcoef([v[False]["day"] for v in mp], [v[True]["day"] for v in mp])[0, 1])
+fict = [r for r in runs if r["ep"] == "2025_counterfactual"]; real = [r for r in runs if r["ep"] != "2025_counterfactual"]
+stress_rank = {c: i for i, c in enumerate("ABCDE")}
+dose = spearman([stress_rank[r["cond"]] for r in runs], [r["day"] for r in runs])
+acts = {"HOLD": [], "SIGNAL_FLEXIBILITY": [], "CONCEDE": []}
+for r in runs:
+    for p in r["_periods"]:
+        for k in ("hawk_decision", "dove_decision"):
+            d = p[k]; acts[d["action"]].append(d["concession_probability"])
+sd_within = float(np.mean([np.std([r["day"] for r in v]) for v in pairs.values()]))
+validation = {
+    "replicate": {"agree": rep_same, "n": len(reps), "corr": rep_corr},
+    "masked": {"corr": mask_corr, "hist": masked if False else None},
+    "fictional": {"rRate": sum(r["conceder"] == "R" for r in fict) / len(fict), "rRateReal": sum(r["conceder"] == "R" for r in real) / len(real),
+                  "median": float(np.median([r["day"] for r in fict])), "medianReal": float(np.median([r["day"] for r in real]))},
+    "dose": dose,
+    "sayDo": {k: float(np.mean(v)) for k, v in acts.items()},
+    "noDefault": sum(r["day"] is not None and r["day"] < 30 for r in runs),
+    "spread": sd_within,
+}
 for r in runs: r.pop("_periods")
 
-summary = {"survival": survival, "pain": pain, "masked": masked, "higherPain": higherPain,"episodes": EPISODES, "conditions": CONDS, "runs": runs, "byCondition": by_cond,
+summary = {"validation": validation, "survival": survival, "pain": pain, "masked": masked, "higherPain": higherPain,"episodes": EPISODES, "conditions": CONDS, "runs": runs, "byCondition": by_cond,
            "regression": reg, "n": len(runs), "rConcede": sum(r["conceder"] == "R" for r in runs),
            "medianDay": float(np.median([r["day"] for r in runs]))}
 json.dump(summary, open(OUT / "summary.json", "w"), separators=(",", ":"), default=float)

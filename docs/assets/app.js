@@ -258,7 +258,7 @@ function togglePlay() {
 /* ---------- boot ---------- */
 function charts() { strip(); survival(); painline(); scatter(); }
 fetch("data/summary.json").then(r => r.json()).then(d => {
-  S = d; hero(); charts(); watch(); parallax();
+  S = d; hero(); charts(); checks(); watch(); parallax();
   $("#play").onclick = togglePlay;
   addEventListener("wheel", () => playing && stopPlay(), { passive: true });
   addEventListener("touchstart", () => playing && stopPlay(), { passive: true });
@@ -268,3 +268,21 @@ fetch("data/summary.json").then(r => r.json()).then(d => {
   addEventListener("resize", () => { if (innerWidth === w) return; w = innerWidth; charts(); watch(); sizeTheater(); buildArena(); render(Math.max(0, DAY)); });
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { charts(); buildArena(); render(Math.max(0, DAY)); });
 });
+
+/* ---------- 06 validation scorecard ---------- */
+function checks() {
+  const V = S.validation, rr = S.rConcede / S.n, chance = rr * rr + (1 - rr) * (1 - rr);
+  const sd = V.sayDo, bar = (l, v) => `<div><span>${l}</span><i style="width:${v * 100}%"></i><span>${Math.round(v * 100)}%</span></div>`;
+  const C = [
+    ["con", "Responds to the right levers", "Sensitivity", `ρ ${V.dose.toFixed(2)}`, "More market stress, earlier deal, across all 80 runs. Turn the dial and behavior moves the way it should."],
+    ["con", "Says what it does", "Internal coherence", "", `Each agent states its own chance of conceding before acting. Those stated odds line up with what it then does.<div class="mini" style="margin-top:14px">${bar("Hold", sd.HOLD)}${bar("Signal", sd.SIGNAL_FLEXIBILITY)}${bar("Concede", sd.CONCEDE)}</div>`],
+    ["con", "Not just memorized", "Blind test", `r ${V.masked.corr.toFixed(2)}`, `Hide party names and history and the same scenario still ends on a similar day. Republican concessions: ${S.masked.historical}/40 shown, ${S.masked.masked}/40 hidden.`],
+    ["con", "Matches the theory", "Theory benchmark", `p ${S.regression.historical.p.toFixed(3)}`, "The side reporting more pain concedes sooner, as the Alesina–Drazen war of attrition predicts."],
+    ["sig", "Gives the same answer twice", "Test–retest", `r ${V.replicate.corr.toFixed(2)}`, `Identical reruns end on correlated days. They agree on who folds ${V.replicate.agree}/${V.replicate.n} times, but chance alone would give about ${Math.round(chance * V.replicate.n)}.`],
+    ["sig", "Works on a crisis that never happened", "Out-of-sample", `${Math.round(V.fictional.rRate * 100)}%`, `In the fictional 2025 crisis the Republican agent still folds every time, but deals come much sooner (median day ${V.fictional.median + 1} vs ${V.fictional.medianReal + 1}).`],
+    ["sig", "Looks like history", "Real-world match", `${V.noDefault}/${S.n}`, "Every simulation reaches a deal before the X-date, as every real crisis did. Who truly blinked in 2011, 2013 and 2023 is contested, so a stricter match is not possible."],
+    ["", "Is it the model's own bias?", "Model bias", `${Math.round(rr * 100)}%`, "One side folding this often could reflect the language model's lean, not politics. Both agents share one model; testing other models and swapped roles is the next step."],
+  ];
+  $("#checks").innerHTML = C.map(([g, h, tag, v, p], i) => `<div class="check" style="--i:${i}">
+    <div class="top"><span>${tag}</span><span class="g ${g}"></span></div><h3>${h}</h3>${v ? `<div class="v">${v}</div>` : ""}<p>${p}</p></div>`).join("");
+}

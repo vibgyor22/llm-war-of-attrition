@@ -20,7 +20,7 @@
 <ul class="toc">
   <li><a href="#question">Question</a></li><li><a href="#theory">Theory</a></li><li><a href="#game">The game</a></li>
   <li><a href="#inputs">What agents see</a></li><li><a href="#data">Data</a></li><li><a href="#stress">Stress levels</a></li>
-  <li><a href="#measures">Measuring pain</a></li><li><a href="#results">Results</a></li><li><a href="#caveats">Caveats</a></li><li><a href="#reproduce">Reproduce</a></li>
+  <li><a href="#measures">Measuring pain</a></li><li><a href="#results">Results</a></li><li><a href="#validation">Validation</a></li><li><a href="#caveats">Caveats</a></li><li><a href="#reproduce">Reproduce</a></li>
 </ul>
 <article class="prose">
   <div class="kicker">Method &amp; appendix</div>
@@ -102,6 +102,12 @@ stress       = 0.5 · minmax(VIX) + 0.5 · minmax(tbill_spread)</pre>
   <div id="regtbl"></div>
   <p>The historical (unmasked) sample is the primary estimate. The pooled sample counts paired historical and masked runs of the same scenario, so its observations are not independent and its smaller p-value should not be over-read. Hazard (Cox) and logit models live in <code>src/analysis/regression.py</code>.</p>
 
+  <h2 id="validation">Validation</h2>
+  <p>There is no single accepted test for whether a simulated society is "real". Teams in the field converge on a handful of checks. Simile's founders (Park et al., 2024) score AI agents against how consistently real people repeat their <em>own</em> answers two weeks later. Artificial Societies reports distribution accuracy and the internal coherence of each persona. Academic audits (PIMMUR, the Artificial Societies Benchmark) warn that a good average can hide memorization, model-specific bias and agents that are too alike, and argue for judging the <em>process</em>, not only the final outcome.</p>
+  <p>We adapted the checks that apply to a two-agent bargaining game:</p>
+  <table class="tbl"><thead><tr><th>Test</th><th>Question</th><th>How we measure it</th><th>Result</th></tr></thead><tbody id="valtbl"></tbody></table>
+  <div class="callout">Read the scorecard as evidence of internal validity: the agents behave consistently and respond to incentives the way theory predicts. It is not proof that real legislators would act the same way.</div>
+
   <h2 id="caveats">Caveats</h2>
   <ul>
   <li><b>Tie rule.</b> If both agents concede on the same day, the engine records the Republican concession, which inflates the Republican concession count.</li>
@@ -119,6 +125,11 @@ python site/build_data.py      # refresh the data behind this site</pre>
   <p>Transcripts are in <code>outputs/transcripts/</code>, one JSONL per run. The original Streamlit dashboard is <code>dashboard/app.py</code>.</p>
 
   <h2 id="refs">References</h2>
+  <p>Park, J. S. et al. (2024). <a href="https://arxiv.org/abs/2411.10109">Generative Agent Simulations of 1,000 People</a>. arXiv:2411.10109.</p>
+  <p>Artificial Societies. <a href="https://societies.io/eval">Evaluation</a> and <a href="https://societies.io/ai-simulation-research">research overview</a>.</p>
+  <p><a href="https://arxiv.org/html/2509.18052v2">The PIMMUR Principles</a>: auditing LLM social simulations.</p>
+  <p><a href="https://arxiv.org/pdf/2609.30030">Artificial Societies Benchmark</a>: a validation framework for synthetic research.</p>
+  <p><a href="https://www.jasss.org/27/1/11.html">Methods that support the validation of agent-based models</a>. JASSS 27(1).</p>
   <p>Alesina, A. &amp; Drazen, A. (1991). Why are stabilizations delayed? <em>American Economic Review</em>, 81(5), 1170–1188.</p>
 </article>
 </div>
@@ -132,6 +143,17 @@ fetch("data/summary.json").then(r=>r.json()).then(S=>{
   h='<table class="tbl"><thead><tr><th>Sample</th><th>n</th><th>β ratio</th><th>SE</th><th>95% CI</th><th>p</th><th>R²</th></tr></thead><tbody>';
   for(const k of ["historical","masked","pooled"]){const o=S.regression[k];h+=`<tr><td>${k[0].toUpperCase()+k.slice(1)}</td><td class="n">${o.n}</td><td class="n">${f(o.beta,1)}</td><td class="n">${f(o.se,1)}</td><td class="n">[${f(o.ci[0],1)}, ${f(o.ci[1],1)}]</td><td class="n">${o.p<0.001?"&lt;0.001":f(o.p,3)}</td><td class="n">${f(o.r2,3)}</td></tr>`}
   document.getElementById("regtbl").innerHTML=h+"</tbody></table>";
+  const V=S.validation, rr=S.rConcede/S.n, ch=rr*rr+(1-rr)*(1-rr);
+  const rows=[
+   ["Sensitivity","Does behavior respond to the treatment?","Spearman ρ between stress level (A→E) and concession day",`ρ = ${f(V.dose)} · pass`],
+   ["Internal coherence","Do agents do what they say?","Mean stated concession probability by chosen action",`Hold ${Math.round(V.sayDo.HOLD*100)}%, Signal ${Math.round(V.sayDo.SIGNAL_FLEXIBILITY*100)}%, Concede ${Math.round(V.sayDo.CONCEDE*100)}% · pass`],
+   ["Blind test","Is it recalling history?","Concession day, shown vs masked twin runs",`r = ${f(V.masked.corr)} · pass`],
+   ["Theory benchmark","Does it follow known theory?","OLS of concession day on cost ratio",`p = ${f(S.regression.historical.p,3)} · pass`],
+   ["Test–retest","Same input, same output?","Replicate pairs: day correlation and conceder agreement vs chance",`r = ${f(V.replicate.corr)}; ${V.replicate.agree}/${V.replicate.n} agree, chance ≈ ${Math.round(ch*V.replicate.n)} · mixed`],
+   ["Out-of-sample","Does it generalize?","Fictional 2025 episode vs real episodes",`Rep. folds ${Math.round(V.fictional.rRate*100)}% vs ${Math.round(V.fictional.rRateReal*100)}%; median day ${V.fictional.median+1} vs ${V.fictional.medianReal+1} · mixed`],
+   ["Real-world match","Does the outcome look like history?","Share of runs reaching a deal before the X-date",`${V.noDefault}/${S.n} · mixed (who blinked in reality is contested)`],
+   ["Model bias","Is this the model's lean?","Not yet tested: needs other base models and swapped role prompts","Open"]];
+  document.getElementById("valtbl").innerHTML=rows.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td class="n">${r[3]}</td></tr>`).join("");
 });
 </script>
 </body>

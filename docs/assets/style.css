@@ -211,3 +211,18 @@ footer .wrap{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap}
 @media(max-height:820px){.arena{height:clamp(160px,30vh,300px)}.say q{font-size:18px}}
 @media(max-width:600px){.say q{font-size:15px}}
 .cell{color:inherit}
+.checks{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--fg)}
+.check{padding:24px 22px 28px 0;border-bottom:1px solid var(--line)}
+.check:not(:nth-child(4n+1)){padding-left:22px;border-left:1px solid var(--line)}
+.check .top{display:flex;justify-content:space-between;align-items:center;font:500 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.check h3{font:400 24px/1.15 var(--serif);margin:16px 0 14px;font-weight:400}
+.check .v{font:400 40px/1 var(--serif);letter-spacing:-.02em}
+.check .v small{font-size:14px;color:var(--muted);font-family:var(--sans);margin-left:6px}
+.check p{font-size:13.5px;color:var(--muted);margin-top:12px;line-height:1.55}
+.check .mini{display:grid;gap:6px;margin-top:4px}
+.check .mini div{display:grid;grid-template-columns:62px 1fr 34px;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
+.check .mini i{display:block;height:5px;background:var(--fg);border-radius:3px;transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+.checks:not(.in) .mini i{width:0!important}
+.stagger.in>.check{transition-delay:calc(var(--i)*70ms)}
+@media(max-width:1000px){.checks{grid-template-columns:repeat(2,1fr)}.check:not(:nth-child(4n+1)){padding-left:0;border-left:0}.check:nth-child(2n){padding-left:22px;border-left:1px solid var(--line)}}
+@media(max-width:600px){.checks{grid-template-columns:1fr}.check:nth-child(2n){padding-left:0;border-left:0}}
