@@ -89,7 +89,7 @@ stress       = 0.5 · minmax(VIX) + 0.5 · minmax(tbill_spread)</pre>
   <p>Design: 4 episodes × 5 stress levels × 2 replicates × 2 mask states = <b>80 runs</b>. In <em>masked</em> runs, party names and the historical outcome are hidden, to test whether the agents are just recalling history.</p>
 
   <h2 id="measures">Measuring pain</h2>
-  <p>Delay cost is not computed from a formula. Each agent reports it every day as a strategic judgment (0 to 10). From that we build three measures:</p>
+  <p>Delay cost is not computed from a formula. Each agent reports it every day as a strategic judgment (0 to 10). From that I build three measures:</p>
   <table class="tbl"><thead><tr><th>Measure</th><th>Definition</th></tr></thead><tbody>
   <tr><td><b>S</b> · self-reported</td><td>Mean <code>delay_cost_implied</code> over active days</td></tr>
   <tr><td><b>B</b> · behavioral</td><td>1 ÷ first day of signal or concession</td></tr>
@@ -104,8 +104,8 @@ stress       = 0.5 · minmax(VIX) + 0.5 · minmax(tbill_spread)</pre>
 
   <h2 id="validation">Validation</h2>
   <p>There is no single accepted test for whether a simulated society is "real". Teams in the field converge on a handful of checks. Simile's founders (Park et al., 2024) score AI agents against how consistently real people repeat their <em>own</em> answers two weeks later. Artificial Societies reports distribution accuracy and the internal coherence of each persona. Academic audits (PIMMUR, the Artificial Societies Benchmark) warn that a good average can hide memorization, model-specific bias and agents that are too alike, and argue for judging the <em>process</em>, not only the final outcome.</p>
-  <p>We adapted the checks that apply to a two-agent bargaining game:</p>
-  <table class="tbl"><thead><tr><th>Test</th><th>Question</th><th>How we measure it</th><th>Result</th></tr></thead><tbody id="valtbl"></tbody></table>
+  <p>I adapted the checks that apply to a two-agent bargaining game:</p>
+  <table class="tbl"><thead><tr><th>Test</th><th>Question</th><th>How I measure it</th><th>Result</th></tr></thead><tbody id="valtbl"></tbody></table>
   <div class="callout">Read the scorecard as evidence of internal validity: the agents behave consistently and respond to incentives the way theory predicts. It is not proof that real legislators would act the same way.</div>
 
   <h2 id="caveats">Caveats</h2>
