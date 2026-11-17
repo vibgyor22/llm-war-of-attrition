@@ -232,3 +232,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap}
 .trustpill .g{width:10px;height:10px}
 .trustpill+.scrollcue{display:flex;margin-top:40px}
 @media(min-width:601px){.trustsum{grid-template-columns:repeat(4,1fr)}}
+.who-says{display:flex;align-items:center;gap:8px;font:600 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;padding-bottom:10px;margin-bottom:12px;border-bottom:2px solid currentColor}
+.say.rep .who-says{color:var(--rep)} .say.dem .who-says{color:var(--dem);flex-direction:row-reverse}
+.who-says i{width:10px;height:10px;border-radius:50%;background:currentColor}
+@media(max-width:600px){.who-says{font-size:10px;letter-spacing:.06em}}

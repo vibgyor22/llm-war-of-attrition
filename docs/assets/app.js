@@ -240,7 +240,7 @@ function render(i) {
     const box = $("#say" + s), d = p[s];
     box.classList.add("swap");
     setTimeout(() => {
-      box.innerHTML = `<div class="sayhead"><span class="act">${ACTNAME[d.a]}</span><details><summary>Private reasoning</summary><p>${d.r || ""}</p></details></div><q>${d.s || "…"}</q>`;
+      box.innerHTML = `<div class="who-says"><i></i>${s === "R" ? "Republican agent" : "Democratic agent"}</div><div class="sayhead"><span class="act">${ACTNAME[d.a]}</span><details><summary>Private reasoning</summary><p>${d.r || ""}</p></details></div><q>${d.s || "…"}</q>`;
       box.classList.remove("swap");
     }, reduce ? 0 : 220);
   });
