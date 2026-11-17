@@ -21,9 +21,22 @@ The outcome is not scripted. The simulation records who holds out, who signals f
 
 ---
 
-## Live Dashboard
+## Live Site
 
-This repository is designed around a Streamlit dashboard:
+**New:** https://vibgyor22.github.io/llm-war-of-attrition/
+
+The static site lives in `docs/` and is deployed by `.github/workflows/pages.yml` on every push to `main` that touches `docs/`.
+Its data is exported from the committed transcripts with:
+
+```text
+python site/build_data.py
+```
+
+One-time setup: in the repository on GitHub, go to Settings → Pages and set **Source** to **GitHub Actions**.
+
+## Streamlit Dashboard (legacy, still live)
+
+The original Streamlit dashboard still works at its existing link:
 
 ```text
 dashboard/app.py

@@ -32,6 +32,9 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed",
 )
+st.info("This project has a new home with a redesigned, interactive site: "
+        "[vibgyor22.github.io/llm-war-of-attrition](https://vibgyor22.github.io/llm-war-of-attrition/). "
+        "This dashboard keeps working for existing links.")
 if _CSS.exists():
     st.markdown(f"<style>{_CSS.read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
 

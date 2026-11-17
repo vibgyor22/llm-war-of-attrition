@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Method · Who Blinks First</title>
+<meta name="description" content="How the debt-ceiling AI negotiation experiment works: theory, agents, data, stress conditions, measures and results.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='12' cy='16' r='8' fill='%23d7263d'/%3E%3Ccircle cx='20' cy='16' r='8' fill='%231f4fd8' fill-opacity='.85'/%3E%3C/svg%3E">
+</head>
+<body>
+<nav><div class="wrap">
+  <a class="mark" href="./"><span><i></i><i></i></span>Who Blinks First</a>
+  <ul><li><a href="./#results">Results</a></li><li><a href="./#replay">Replay</a></li><li><a class="on" href="method.html">Method</a></li>
+  <li class="hide-s"><a href="https://github.com/vibgyor22/llm-war-of-attrition">Code</a></li></ul>
+</div></nav>
+
+<div class="wrap doc">
+<ul class="toc">
+  <li><a href="#question">Question</a></li><li><a href="#theory">Theory</a></li><li><a href="#game">The game</a></li>
+  <li><a href="#inputs">What agents see</a></li><li><a href="#data">Data</a></li><li><a href="#stress">Stress levels</a></li>
+  <li><a href="#measures">Measuring pain</a></li><li><a href="#results">Results</a></li><li><a href="#caveats">Caveats</a></li><li><a href="#reproduce">Reproduce</a></li>
+</ul>
+<article class="prose">
+  <div class="kicker">Method &amp; appendix</div>
+  <h1 style="font-size:clamp(44px,6vw,72px);margin-top:16px">How it <em>works</em></h1>
+  <p class="lede">Everything behind the front page, in the order you would need it to rebuild the experiment.</p>
+
+  <h2 id="question">The question</h2>
+  <p>If two language-model agents are placed inside a U.S. debt-ceiling crisis, do they behave like players in a war of attrition? Do they delay, read each other's pain, and does the side that suffers more from waiting concede first?</p>
+
+  <h2 id="theory">The theory</h2>
+  <p>Alesina and Drazen (1991) asked why fiscal stabilizations get postponed even when everyone agrees they are needed. Their answer: groups disagree about <em>who pays</em>. Each side waits, hoping the other folds. Waiting is costly for both, but not equally.</p>
+  <div class="callout">The side for whom delay is more costly concedes first. Higher overall costs make everyone concede sooner.</div>
+  <p>That gives three testable predictions:</p>
+  <ol><li>A higher Republican-to-Democrat delay-cost ratio means an earlier concession (and more often by the Republican side).</li>
+  <li>More market stress means a higher concession hazard, so earlier deals.</li>
+  <li>Pressure rises as the X-date approaches.</li></ol>
+
+  <h2 id="game">The game</h2>
+  <p>Two agents, built on the same LLM with different role prompts:</p>
+  <ul><li><b class="rep">Republican (HAWK)</b>: fiscal conservative. Wants spending cuts, opposes tax increases, values toughness and fiscal credibility.</li>
+  <li><b class="dem">Democrat (DOVE)</b>: fiscal liberal. Protects social programs, prefers revenue offsets, does not want to normalize debt-ceiling hostage-taking.</li></ul>
+  <p>Each period is one day, up to 30 days before the X-date. Every day:</p>
+  <div class="flow"><span>Shared crisis data</span><i>→</i><span class="rep">Republican reasons &amp; acts</span><i>→</i><span class="dem">Democrat reasons &amp; acts</span><i>→</i><span>Logged</span><i>→</i><span>Stop if anyone concedes</span></div>
+  <p>Actions are <code>HOLD</code>, <code>SIGNAL_FLEXIBILITY</code> or <code>CONCEDE</code>. Each decision is a structured tool call:</p>
+<pre>{
+  "action": "SIGNAL_FLEXIBILITY",
+  "concession_probability": 0.42,
+  "delay_cost_implied": 7.0,
+  "belief_opponent_delay_cost": 6.5,
+  "public_statement": "..."
+}</pre>
+
+  <h2 id="inputs">What the agents see</h2>
+  <p>Both agents receive the same numbers. The asymmetry is in how their roles interpret them: rising yields can mean "lost credibility" to one side and "pressure on their donors" to the other.</p>
+  <table class="tbl"><thead><tr><th>Variable</th><th>Meaning</th></tr></thead><tbody>
+  <tr><td><code>days_to_xdate</code></td><td>Days left until the Treasury runs out of room</td></tr>
+  <tr><td><code>vix</code></td><td>CBOE volatility index</td></tr>
+  <tr><td><code>tbill_4wk</code></td><td>4-week Treasury bill rate</td></tr>
+  <tr><td><code>market_stress_index</code></td><td>Composite of VIX and T-bill spread, 0 (calm) to 1 (panic)</td></tr>
+  <tr><td><code>polling_approval_pct</code></td><td>Presidential approval, interpolated daily</td></tr>
+  <tr><td><code>debt_gdp_ratio</code>, <code>deficit_projection_bn</code></td><td>Fiscal context</td></tr>
+  <tr><td><code>election_days_out</code></td><td>Days until the next election</td></tr>
+  <tr><td><code>opponent_last_action</code></td><td>What the other side did yesterday</td></tr>
+  <tr><td><code>narrative_injection</code></td><td>Short news-style description of the stress level</td></tr>
+  </tbody></table>
+
+  <h2 id="data">Data</h2>
+  <p>Market and fiscal series come from FRED: <code>VIXCLS</code>, <code>TB4WK</code>, <code>GFDEGDQ188S</code> (debt/GDP) and <code>MTSDS133FMS</code> (deficit). Polls cover Obama (2011, 2013) and Biden (2023); the fictional 2025 episode uses synthetic polling. The stress index is:</p>
+<pre>tbill_spread = tbill_4wk − rolling_30d_mean(tbill_4wk)
+stress       = 0.5 · minmax(VIX) + 0.5 · minmax(tbill_spread)</pre>
+  <p>It is an experimental proxy for financial pressure, not a default probability.</p>
+  <table class="tbl"><thead><tr><th>Episode</th><th>Window ends</th><th>Note</th></tr></thead><tbody>
+  <tr><td>2011</td><td>Aug 2, 2011</td><td>Budget Control Act; S&amp;P downgrade followed</td></tr>
+  <tr><td>2013</td><td>Oct 17, 2013</td><td>Government shutdown and debt limit</td></tr>
+  <tr><td>2023</td><td>Jun 2023</td><td>Fiscal Responsibility Act</td></tr>
+  <tr><td>2025</td><td>Fictional</td><td>Out-of-sample episode to limit memorization</td></tr></tbody></table>
+
+  <h2 id="stress">Stress levels</h2>
+  <p>To isolate the effect of market pressure, every episode is replayed under five controlled stress treatments. Same history, scaled intensity.</p>
+  <table class="tbl"><thead><tr><th></th><th>Label</th><th>VIX ×</th><th>T-bill spike</th><th>Stress floor</th><th>Approval</th></tr></thead><tbody>
+  <tr><td>A</td><td>Calm</td><td class="n">0.7</td><td class="n">0 bp</td><td class="n">0.10</td><td class="n">+3</td></tr>
+  <tr><td>B</td><td>Baseline</td><td class="n">1.0</td><td class="n">+15 bp</td><td class="n">0.35</td><td class="n">0</td></tr>
+  <tr><td>C</td><td>High stress</td><td class="n">1.4</td><td class="n">+40 bp</td><td class="n">0.65</td><td class="n">−8</td></tr>
+  <tr><td>D</td><td>Near crisis</td><td class="n">1.8</td><td class="n">+80 bp</td><td class="n">0.82</td><td class="n">−15</td></tr>
+  <tr><td>E</td><td>Extreme</td><td class="n">2.5</td><td class="n">+150 bp</td><td class="n">0.95</td><td class="n">−25</td></tr></tbody></table>
+  <p>Design: 4 episodes × 5 stress levels × 2 replicates × 2 mask states = <b>80 runs</b>. In <em>masked</em> runs, party names and the historical outcome are hidden, to test whether the agents are just recalling history.</p>
+
+  <h2 id="measures">Measuring pain</h2>
+  <p>Delay cost is not computed from a formula. Each agent reports it every day as a strategic judgment (0 to 10). From that we build three measures:</p>
+  <table class="tbl"><thead><tr><th>Measure</th><th>Definition</th></tr></thead><tbody>
+  <tr><td><b>S</b> · self-reported</td><td>Mean <code>delay_cost_implied</code> over active days</td></tr>
+  <tr><td><b>B</b> · behavioral</td><td>1 ÷ first day of signal or concession</td></tr>
+  <tr><td><b>J</b> · judge</td><td>A separate LLM estimates cost from anonymized transcripts</td></tr></tbody></table>
+  <p>The headline variable is the ratio <code>cost_ratio = Republican S ÷ Democrat S</code>. Above 1 means the Republican agent reported more pain.</p>
+
+  <h2 id="results">Results</h2>
+  <div id="bycond"></div>
+  <p>OLS of concession day on the delay-cost ratio:</p>
+  <div id="regtbl"></div>
+  <p>The historical (unmasked) sample is the primary estimate. The pooled sample counts paired historical and masked runs of the same scenario, so its observations are not independent and its smaller p-value should not be over-read. Hazard (Cox) and logit models live in <code>src/analysis/regression.py</code>.</p>
+
+  <h2 id="caveats">Caveats</h2>
+  <ul>
+  <li><b>Tie rule.</b> If both agents concede on the same day, the engine records the Republican concession, which inflates the Republican concession count.</li>
+  <li><b>Self-reports.</b> Delay cost is what the model <em>says</em> it feels. It is a strategic signal, not a measured quantity.</li>
+  <li><b>One base model.</b> Both agents share an underlying LLM; asymmetry comes only from prompts.</li>
+  <li><b>Small n.</b> 80 runs, 2 replicates per cell. Treat effect sizes as indicative.</li>
+  <li><b>Memorization.</b> Real episodes may be in training data. Masked runs and the fictional 2025 episode partly address this.</li>
+  </ul>
+
+  <h2 id="reproduce">Reproduce</h2>
+<pre>git clone https://github.com/vibgyor22/llm-war-of-attrition
+pip install -r requirements.txt
+python run_sim.py              # needs an API key, see .env.example
+python site/build_data.py      # refresh the data behind this site</pre>
+  <p>Transcripts are in <code>outputs/transcripts/</code>, one JSONL per run. The original Streamlit dashboard is <code>dashboard/app.py</code>.</p>
+
+  <h2 id="refs">References</h2>
+  <p>Alesina, A. &amp; Drazen, A. (1991). Why are stabilizations delayed? <em>American Economic Review</em>, 81(5), 1170–1188.</p>
+</article>
+</div>
+<footer><div class="wrap"><a href="./">&larr; Back to results</a><span>Who Blinks First · <a href="https://github.com/vibgyor22/llm-war-of-attrition">GitHub</a></span></div></footer>
+<script>
+fetch("data/summary.json").then(r=>r.json()).then(S=>{
+  const f=(v,d=2)=>Number(v).toFixed(d);
+  let h='<table class="tbl"><thead><tr><th>Stress</th><th>Runs</th><th>Rep. conceded</th><th>Median day</th><th>Rep. cost</th><th>Dem. cost</th></tr></thead><tbody>';
+  for(const c of ["A","B","C","D","E"]){const b=S.byCondition[c];h+=`<tr><td>${c} · ${S.conditions[c]}</td><td class="n">${b.n}</td><td class="n">${b.rConcede}</td><td class="n">${f(b.medianDay+1,1)}</td><td class="n">${f(b.rCost)}</td><td class="n">${f(b.dCost)}</td></tr>`}
+  document.getElementById("bycond").innerHTML=h+"</tbody></table>";
+  h='<table class="tbl"><thead><tr><th>Sample</th><th>n</th><th>β ratio</th><th>SE</th><th>95% CI</th><th>p</th><th>R²</th></tr></thead><tbody>';
+  for(const k of ["historical","masked","pooled"]){const o=S.regression[k];h+=`<tr><td>${k[0].toUpperCase()+k.slice(1)}</td><td class="n">${o.n}</td><td class="n">${f(o.beta,1)}</td><td class="n">${f(o.se,1)}</td><td class="n">[${f(o.ci[0],1)}, ${f(o.ci[1],1)}]</td><td class="n">${o.p<0.001?"&lt;0.001":f(o.p,3)}</td><td class="n">${f(o.r2,3)}</td></tr>`}
+  document.getElementById("regtbl").innerHTML=h+"</tbody></table>";
+});
+</script>
+</body>
+</html>
