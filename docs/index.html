@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Who Blinks First</title>
-<meta name="description" content="Two AI negotiators face a U.S. debt-ceiling deadline. 80 simulated standoffs, real market data, and a test of war-of-attrition theory.">
+<meta name="description" content="80 simulated standoffs between AI negotiators facing a U.S. debt-ceiling deadline. 80 simulated standoffs, real market data, and a test of war-of-attrition theory.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
@@ -17,26 +17,27 @@
 </div></nav>
 
 <header class="hero"><div class="wrap">
-  <div class="kicker">An experiment with AI negotiators</div>
+  <div class="kicker reveal">80 simulated debt-ceiling standoffs · AI agents · real market data</div>
   <div class="hero-grid">
-    <div>
-      <h1>Two AIs.<br>One debt ceiling.<br><em>Who blinks first?</em></h1>
-      <p class="lede">We put a <span class="rep">Republican</span> and a <span class="dem">Democratic</span> language-model agent inside a debt-ceiling countdown, fed them real market data, and let them negotiate. Nobody scripted the ending.</p>
+    <div class="px" data-speed="-0.06">
+      <h1 class="reveal">Simulating the<br>debt ceiling.<br><em>Who blinks first?</em></h1>
+      <p class="lede reveal">We ran 80 simulated debt-ceiling standoffs between a <span class="rep">Republican</span> and a <span class="dem">Democratic</span> language-model negotiator, each fed real market and polling data from past crises. Nobody scripted the ending.</p>
     </div>
-    <div>
+    <div class="px" data-speed="0.08">
       <div class="dots" id="dots"></div>
-      <div class="big"><span id="bigR">74</span><small> / <span id="bigN">80</span></small></div>
-      <p class="cap">standoffs ended with the <span class="rep">Republican agent</span> conceding. Each dot is one simulated negotiation.</p>
+      <div class="big"><span class="count" data-to="74" id="bigR">0</span><small> / <span id="bigN">80</span></small></div>
+      <p class="cap">simulations ended with the <span class="rep">Republican agent</span> conceding. Each dot is one simulated negotiation.</p>
     </div>
   </div>
+  <a class="scrollcue" href="#setup"><span></span>Scroll</a>
 </div></header>
 
 <section id="setup"><div class="wrap">
-  <div class="sec-head"><div class="num">01</div><div>
+  <div class="sec-head reveal"><div class="num">01</div><div>
     <h2>A 30-day game of <em>chicken</em></h2>
     <p>Both sides want to avoid default. Each wants the other to pay for it. So they wait, and every day of waiting hurts. Economists call this a war of attrition: whoever feels the pain more should give in first.</p>
   </div></div>
-  <div class="steps">
+  <div class="steps stagger">
     <div><div class="n">i</div>
       <svg viewBox="0 0 160 64"><polyline points="0,50 20,44 40,47 60,36 80,40 100,24 120,30 140,12 160,16" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="63" x2="160" y2="63" stroke="currentColor" stroke-opacity=".2"/></svg>
       <h3>Same crisis</h3><p>Each day both agents see identical data: VIX, Treasury bill rates, approval polls, days left until the X-date.</p></div>
@@ -51,7 +52,7 @@
 </div></section>
 
 <section id="results"><div class="wrap">
-  <div class="sec-head"><div class="num">02</div><div>
+  <div class="sec-head reveal"><div class="num">02</div><div>
     <h2>Market panic <em>ends</em> standoffs</h2>
     <p>We replayed four crises (2011, 2013, 2023 and a fictional 2025) under five levels of market stress. In calm markets the agents hold out until the last days. Turn up the stress and the deal comes in the first week.</p>
   </div></div>
@@ -60,34 +61,69 @@
   <div class="stats" id="stats"></div>
 </div></section>
 
-<section id="pain"><div class="wrap">
-  <div class="sec-head"><div class="num">03</div><div>
-    <h2>Whoever hurts more, <em>folds</em> first</h2>
-    <p>Every day each agent reports how painful further delay is. When the Republican agent's reported pain runs higher relative to the Democrat's, it concedes sooner. This is exactly what war-of-attrition theory (Alesina &amp; Drazen, 1991) predicts.</p>
+<section id="clock"><div class="wrap">
+  <div class="sec-head reveal"><div class="num">03</div><div>
+    <h2>The clock runs out <em>faster</em> under stress</h2>
+    <p>Share of simulations still deadlocked on each day before the X-date. Calm markets let both sides wait almost to the deadline; extreme stress cuts most standoffs short in the first two weeks.</p>
   </div></div>
-  <div class="figure" id="scatter"></div>
-  <p class="note" id="regnote"></p>
+  <div class="legend" id="survLeg" style="margin:0 0 24px"></div>
+  <div class="figure" id="survival"></div>
 </div></section>
 
-<section id="replay"><div class="wrap">
-  <div class="sec-head"><div class="num">04</div><div>
-    <h2>Replay a <em>negotiation</em></h2>
-    <p>Pick a crisis and a stress level. Tap any day to read what each side said in public and what it was thinking in private.</p>
+<section id="pain"><div class="wrap">
+  <div class="sec-head reveal"><div class="num">04</div><div>
+    <h2>Whoever hurts more, <em>folds</em> first</h2>
+    <p>Every day each agent reports how painful further delay feels, from 0 to 10. Both rise toward the deadline, but the Republican agent's pain climbs faster. That is the war-of-attrition story (Alesina &amp; Drazen, 1991): the side that hurts more gives in.</p>
+  </div></div>
+  <div class="two">
+    <div><h3 class="fig-t">Felt cost of delay, average by day</h3><div class="figure" id="painline"></div></div>
+    <div><h3 class="fig-t">Pain ratio vs. day of the deal</h3><div class="figure" id="scatter"></div></div>
+  </div>
+  <p class="note" id="regnote"></p>
+  <div class="stats" id="stats2"></div>
+</div></section>
+
+<section id="memory"><div class="wrap">
+  <div class="sec-head reveal"><div class="num">05</div><div>
+    <h2>Not just <em>memory</em></h2>
+    <p>Maybe the models are just recalling how 2011 or 2023 ended? In half the simulations we hid party names and historical outcomes. The pattern barely moved.</p>
+  </div></div>
+  <div class="two">
+    <div><h3 class="fig-t">Names and history shown</h3><div class="dots sm" id="dotsH"></div><div class="big sm"><span class="count" id="cH">0</span><small> / 40</small></div></div>
+    <div><h3 class="fig-t">Names and history masked</h3><div class="dots sm" id="dotsM"></div><div class="big sm"><span class="count" id="cM">0</span><small> / 40</small></div></div>
+  </div>
+</div></section>
+
+<section id="replay" class="replay"><div class="wrap">
+  <div class="sec-head reveal"><div class="num">06</div><div>
+    <h2>Watch a standoff <em>unfold</em></h2>
+    <p>Keep scrolling and the negotiation plays out one day at a time. The two sides drift together as they soften; their size swells with the pain of waiting. Tap the timeline to jump to any day.</p>
   </div></div>
   <div class="controls">
     <div class="ctl"><label>Crisis</label><div class="pills" id="pEp"></div></div>
     <div class="ctl"><label>Market stress</label><div class="pills" id="pCond"></div></div>
     <div class="ctl"><label>Run</label><div class="pills" id="pRun"></div></div>
   </div>
-  <div class="verdict"><div class="v" id="verdict">…</div><div class="m" id="vmeta"></div></div>
-  <div class="lanes">
-    <div class="who rep">Republican</div><div class="cells rep" id="laneR"></div>
-    <div class="who dem">Democrat</div><div class="cells dem" id="laneD"></div>
-    <div></div><div class="figure" id="costs"></div>
-    <div></div><div class="axisrow"><span>Day 1 · 30 days left</span><span>X-date</span></div>
+</div>
+<div class="theater" id="theater"><div class="stage">
+  <div class="wrap stage-in">
+    <div class="stage-top">
+      <div><div class="kicker" id="stMeta"></div><div class="stday"><span id="stDay">Day 1</span> <small id="stLeft"></small></div></div>
+      <button class="play" id="play" aria-label="Play">Play</button>
+    </div>
+    <svg class="arena" id="arena"></svg>
+    <div class="speech">
+      <div class="say rep" id="sayR"></div>
+      <div class="say dem" id="sayD"></div>
+    </div>
+    <div class="timeline">
+      <div class="cells rep" id="laneR"></div>
+      <div class="cells dem" id="laneD"></div>
+      <div class="axisrow"><span>30 days left</span><span id="stVerdict"></span><span>X-date</span></div>
+    </div>
   </div>
-  <div class="day" id="day"></div>
-</div></section>
+</div></div>
+</section>
 
 <footer><div class="wrap">
   <div>

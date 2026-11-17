@@ -92,6 +92,7 @@ for f in sorted(glob.glob(str(ROOT / "outputs/transcripts/*.jsonl"))):
         "R": short(p["hawk_decision"]), "D": short(p["dove_decision"])} for p in periods]}
     json.dump(detail, open(OUT / "runs" / f"{run['id']}.json", "w"), separators=(",", ":"))
 
+    run["_periods"] = periods
 hist = [r for r in runs if not r["masked"]]
 reg = {k: ols([r["ratio"] for r in s], [r["day"] for r in s])
        for k, s in {"historical": hist, "masked": [r for r in runs if r["masked"]], "pooled": runs}.items()}
@@ -104,7 +105,22 @@ for c in CONDS:
                   "meanDay": float(np.mean([r["day"] for r in s])),
                   "rCost": float(np.mean([r["rCost"] for r in s])), "dCost": float(np.mean([r["dCost"] for r in s]))}
 
-summary = {"episodes": EPISODES, "conditions": CONDS, "runs": runs, "byCondition": by_cond,
+# survival: share of standoffs still unresolved at the start of each day, by stress level
+survival = {c: [sum(r["day"] >= t for r in runs if r["cond"] == c) / 16 for t in range(31)] for c in CONDS}
+# felt cost of delay by day, averaged over runs still active that day
+pain = {"R": [], "D": [], "n": []}
+for t in range(30):
+    act = [p for r in runs for p in r["_periods"] if p["period"] == t]
+    pain["n"].append(len(act))
+    for k, key in (("R", "hawk_decision"), ("D", "dove_decision")):
+        pain[k].append(float(np.mean([p[key]["delay_cost_implied"] for p in act])) if len(act) >= 5 else None)
+flex = {k: float(np.mean([1 if r[k] is not None else 0 for r in runs])) for k in ("rFlex", "dFlex")}
+masked = {"historical": sum(r["conceder"] == "R" for r in runs if not r["masked"]),
+          "masked": sum(r["conceder"] == "R" for r in runs if r["masked"])}
+higherPain = sum(r["ratio"] > 1 for r in runs)
+for r in runs: r.pop("_periods")
+
+summary = {"survival": survival, "pain": pain, "masked": masked, "higherPain": higherPain,"episodes": EPISODES, "conditions": CONDS, "runs": runs, "byCondition": by_cond,
            "regression": reg, "n": len(runs), "rConcede": sum(r["conceder"] == "R" for r in runs),
            "medianDay": float(np.median([r["day"] for r in runs]))}
 json.dump(summary, open(OUT / "summary.json", "w"), separators=(",", ":"), default=float)
