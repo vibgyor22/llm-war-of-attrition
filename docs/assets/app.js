@@ -54,7 +54,7 @@ function strip() {
   const W = fig.clientWidth, small = W < 600, L = small ? 78 : 140, R = 12, rowH = small ? 64 : 76, H = rowH * 5 + 40;
   const svg = el("svg", { class: "chart", viewBox: `0 0 ${W} ${H}`, height: H }, fig);
   const x = d => L + (d / 30) * (W - L - R);
-  [0, 10, 20, 30].forEach(d => { el("line", { x1: x(d), x2: x(d), y1: 0, y2: rowH * 5, class: "tick" }, svg); el("text", { x: x(d), y: rowH * 5 + 22, "text-anchor": "middle" }, svg).textContent = d === 30 ? "Day 30 · X-date" : "Day " + d; });
+  [0, 10, 20, 30].forEach(d => { el("line", { x1: x(d), x2: x(d), y1: 0, y2: rowH * 5, class: "tick" }, svg); el("text", { x: x(d), y: rowH * 5 + 22, "text-anchor": d === 30 ? "end" : "middle" }, svg).textContent = d === 30 ? "X-date" : "Day " + d; });
   let k = 0;
   COND.forEach((c, i) => {
     const cy = i * rowH + rowH / 2;

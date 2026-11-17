@@ -198,3 +198,16 @@ footer .wrap{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap}
 .say details p{max-height:26vh;overflow:auto;text-align:left}
 .say q{-webkit-line-clamp:4}
 @media(max-width:600px){.arena{height:30vh}.say q{-webkit-line-clamp:7}.sayhead{gap:8px}.stday small{display:block;margin:6px 0 0}}
+/* fixes */
+.stats b span{font:inherit;color:inherit;letter-spacing:inherit}
+@media(max-width:600px){
+  .stats{grid-template-columns:1fr}
+  .stats div,.stats div+div{padding:20px 0;border-left:0;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:16px}
+  .stats b{font-size:36px;flex:none;min-width:40%}
+}
+.say q{display:block;-webkit-line-clamp:unset;overflow:visible}
+.say{overflow-y:auto;max-height:100%;padding-right:4px;scrollbar-width:thin}
+.speech{align-items:stretch}
+@media(max-height:820px){.arena{height:clamp(160px,30vh,300px)}.say q{font-size:18px}}
+@media(max-width:600px){.say q{font-size:15px}}
+.cell{color:inherit}
